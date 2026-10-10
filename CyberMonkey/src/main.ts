@@ -324,7 +324,6 @@ function startWave() {
   });
 }
 function updateBattle(b: Battle) {
-  $("live-health").innerHTML = `${Math.ceil(b.health)}<span>%</span>`;
   if ($("kill-counter")) {
     $("kill-counter").textContent = String(b.kills);
     $("enemies-live").textContent = String(b.enemies.length);
@@ -433,6 +432,10 @@ $("app").addEventListener("click", (event) => {
       $<HTMLDialogElement>("restart-dialog").close();
       restart();
       break;
+    case "close-tutorial":
+    case "start-tutorial":
+      $<HTMLDialogElement>("tutorial-dialog").close();
+      break;
   }
 });
 setInterval(() => {
@@ -458,4 +461,4 @@ setInterval(() => {
   }
 }, 100);
 render();
-tutorialDialog.showModal();
+$<HTMLDialogElement>("tutorial-dialog").showModal();

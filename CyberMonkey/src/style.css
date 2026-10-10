@@ -1126,6 +1126,9 @@ dialog > p:not(.eyebrow) {
   display: flex;
   flex-direction: column;
 }
+.tutorial-dialog:not([open]) {
+  display: none;
+}
 .tutorial-header {
   flex: 0 0 auto;
   display: flex;
