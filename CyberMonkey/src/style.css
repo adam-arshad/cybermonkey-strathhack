@@ -675,64 +675,6 @@ canvas {
   font-size: 9px;
   color: var(--muted);
 }
-.metrics {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  margin-top: 16px;
-  background: #11232b;
-  border: 1px solid var(--line);
-  border-radius: 7px;
-}
-.metrics > div {
-  padding: 17px 18px;
-  border-right: 1px solid var(--line);
-}
-.metrics > div:last-child {
-  border: 0;
-}
-.metrics > div > span {
-  display: block;
-  font: 9px monospace;
-  letter-spacing: 0.7px;
-  color: var(--muted);
-  margin-bottom: 8px;
-}
-.metrics strong {
-  font-size: 26px;
-  font-weight: 500;
-  color: var(--mint);
-  font-variant-numeric: tabular-nums;
-}
-.metrics strong span {
-  font-size: 14px;
-  padding-left: 2px;
-}
-.score-detail {
-  margin-top: 17px;
-  color: var(--muted);
-  font-size: 11px;
-}
-.score-detail summary {
-  padding: 6px;
-}
-.score-detail table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-  background: #11232b;
-  font-size: 11px;
-}
-.score-detail th,
-.score-detail td {
-  text-align: left;
-  border-bottom: 1px solid var(--line);
-  padding: 10px;
-}
-.score-detail td:not(:first-child),
-.score-detail th:not(:first-child) {
-  text-align: right;
-  white-space: nowrap;
-}
 .phase-stamp {
   font: 10px monospace;
   color: var(--mint);
@@ -1139,30 +1081,6 @@ canvas {
   margin: 12px auto 25px;
   font-size: 13px;
 }
-.result-scores {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 23px;
-  margin: 25px 0;
-}
-.result-scores > span {
-  color: var(--muted);
-  font-size: 20px;
-}
-.result-scores div strong {
-  display: block;
-  font-size: 32px;
-  color: var(--mint);
-  font-weight: 450;
-}
-.result-scores div > span {
-  display: block;
-  font: 9px monospace;
-  letter-spacing: 1px;
-  color: var(--muted);
-  margin-top: 7px;
-}
 .toast {
   position: fixed;
   bottom: 28px;
@@ -1237,13 +1155,6 @@ dialog > p:not(.eyebrow) {
   }
   .reveal-card {
     padding: 9px;
-  }
-  .metrics > div {
-    padding: 15px 11px;
-  }
-  .metrics > div > span {
-    font-size: 8px;
-    letter-spacing: 0;
   }
   .quiz-screen h2 {
     font-size: 20px;
@@ -1386,18 +1297,6 @@ dialog > p:not(.eyebrow) {
   .page-footer > span:nth-child(2) {
     display: none;
   }
-  .metrics {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .metrics > div {
-    border-bottom: 1px solid var(--line);
-  }
-  .metrics > div:nth-child(2) {
-    border-right: 0;
-  }
-  .metrics > div:nth-child(3) {
-    border-bottom: 0;
-  }
   .map-frame,
   .map-frame #game-container {
     min-height: 590px;
@@ -1457,9 +1356,6 @@ dialog > p:not(.eyebrow) {
   .placement-hint {
     font-size: 9px;
     padding: 9px;
-  }
-  .result-scores {
-    gap: 15px;
   }
   .game-sidebar .tower-inventory {
     grid-template-columns: 1fr;
