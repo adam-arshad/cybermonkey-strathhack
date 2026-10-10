@@ -399,7 +399,10 @@ p {
   visibility: hidden;
   pointer-events: none;
   transform: translateY(-4px);
-  transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    visibility 0.15s ease,
+    transform 0.15s ease;
   z-index: 20;
 }
 .control-card.expanded .card-popout {
@@ -606,17 +609,9 @@ hr {
 .howto li {
   margin: 6px 0;
 }
-.baseline {
-  margin-top: 24px;
-  font-size: 11px;
-  color: var(--muted);
-}
-summary {
+.summary {
   cursor: pointer;
   line-height: 1.5;
-}
-.baseline p {
-  font-size: 11px;
 }
 .page-footer {
   border-top: 1px solid var(--line);
@@ -1424,7 +1419,6 @@ dialog > p:not(.eyebrow) {
     position: static;
   }
   .shop-layout .loadout,
-  .shop-layout .baseline,
   .shop-layout .howto {
     max-height: 160px;
     overflow: auto;

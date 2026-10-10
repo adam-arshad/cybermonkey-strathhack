@@ -24,6 +24,8 @@ let questionKey = "",
   questionPaused = false,
   lastClock = performance.now();
 let toastTimer: ReturnType<typeof setTimeout>;
+let lastLeakCount = 0;
+let lastBattleHealth = 100;
 const money = (n: number) =>
   new Intl.NumberFormat("en-GB", {
     style: "currency",
@@ -320,12 +322,25 @@ function startWave() {
   attempt(() => {
     if (run.startBattle()) {
       bridge.paused = false;
+      lastLeakCount = 0;
+      lastBattleHealth = run.health;
       renderer?.scene.beginBattle();
       $("pause").textContent = "Pause";
     }
   });
 }
 function updateBattle(b: Battle) {
+  if (b.leaks > lastLeakCount) {
+    const leaked = b.leaks - lastLeakCount;
+    const integrityLost = Math.max(0, lastBattleHealth - b.health);
+    notify(
+      b.health <= 0
+        ? "Network overwhelmed. You lost this run."
+        : `${leaked} threat${leaked === 1 ? "" : "s"} got through. Network integrity -${integrityLost}.`,
+    );
+  }
+  lastLeakCount = b.leaks;
+  lastBattleHealth = b.health;
   if ($("kill-counter")) {
     $("kill-counter").textContent = String(b.kills);
     $("enemies-live").textContent = String(b.enemies.length);
@@ -339,6 +354,8 @@ function restart() {
   run = new Run(data);
   bridge.run = run;
   bridge.paused = false;
+  lastLeakCount = 0;
+  lastBattleHealth = 100;
   selected = null;
   bridge.selected = null;
   questionKey = "";
