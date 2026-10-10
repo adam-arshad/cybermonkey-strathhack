@@ -10,7 +10,7 @@ import type { Category, Scenario, Question, Control } from "./core/types";
 import { startGame } from "./game/main";
 import type { Bridge } from "./game/scenes/Game";
 
-document.title = `${CONFIG.gameName} — Network Defence Lab`;
+document.title = CONFIG.gameName;
 const data = scenarioJson as Scenario;
 const questions = questionJson.questions as Question[];
 let run = new Run(data, questions),
@@ -79,18 +79,18 @@ const bridge: Bridge = {
 };
 
 $("app").innerHTML = `
-<header class="topbar"><a class="brand" href="./" aria-label="${CONFIG.gameName} home"><span class="monkey" aria-hidden="true">◉</span><span>${CONFIG.gameName.toUpperCase()}<small>NETWORK DEFENCE LAB</small></span></a><div class="top-meta"><span class="online-dot"></span> LOCAL TRAINING SIMULATION <span class="separator">/</span> <button class="text-button" id="restart">New run ↗</button></div></header>
+<header class="topbar"><a class="brand" href="./" aria-label="${CONFIG.gameName} home"><span class="monkey" aria-hidden="true">◉</span><span>${CONFIG.gameName.toUpperCase()}</span></a><button class="text-button" id="restart">New run</button></header>
 <main>
- <div class="mission-title"><div><p class="eyebrow" id="eyebrow">01 / BUILD YOUR LOADOUT</p><h1 id="heading" tabindex="-1">Good defence starts with a decision.</h1><p id="subtitle">Protect ${CONFIG.businessName}. Choose your controls, earn your towers, and outlast the attack.</p></div><div class="session-number"><span>SCENARIO</span><strong>04<span> phases</span></strong><small>ONE NETWORK. YOUR CALL.</small></div></div>
+ <div class="mission-title"><p class="eyebrow" id="eyebrow">LOADOUT</p><h1 id="heading" tabindex="-1">Choose your defences</h1><div class="scenario-summary" id="scenario-summary"><p class="scenario-label" id="scenario-label" hidden>Scenario</p><p id="subtitle">Buy controls for ${CONFIG.businessName} before the attack begins.</p></div></div>
  <nav class="timeline" aria-label="Game progress" id="timeline"></nav>
  <section id="shop-view" class="shop-layout"><div><div class="section-header"><div><p class="eyebrow">CONTROL LIBRARY</p><h2>Your first line of defence</h2></div><span class="muted">${data.controls.length} controls available</span></div><div class="filters" role="group" aria-label="Filter controls" id="filters"></div><div class="catalog" id="catalog"></div></div><aside id="shop-sidebar" class="side-panel" aria-label="Your loadout"></aside></section>
- <section id="game-view" hidden><div id="score-strip" class="score-strip" aria-label="Your score"></div><div id="matching-view" hidden></div><div class="game-layout" id="battle-layout"><div class="map-column"><div class="map-toolbar"><span class="map-label"><span class="online-dot"></span> ${CONFIG.businessName.toUpperCase()} / SECTOR 07</span><div class="map-controls"><button id="pause" class="mini-button">Pause</button><button id="speed" class="mini-button" aria-label="Change battle speed">1× speed</button></div></div><div class="map-frame"><div id="game-container"></div><div id="overlay"></div><div id="placement-hint" class="placement-hint" hidden>Select a tower, then click a numbered pad.</div></div><div class="map-footer"><span><i class="legend-dot prevent"></i> Prevent · direct</span><span><i class="legend-dot detect"></i> Detect · slow + mark</span><span><i class="legend-dot respond"></i> Respond · area</span><span class="map-note">Combat illustrates resilience; it is not a real security simulation.</span></div></div><aside class="side-panel game-sidebar" id="game-sidebar" aria-label="Mission controls"></aside></div></section>
- <footer class="page-footer"><span>${CONFIG.gameName} <span class="muted">/ StrathHack MVP</span></span><span>Built for better cyber decisions.</span><span>Best survival: <b id="best-wave">${best}</b> waves</span></footer>
+ <section id="game-view" hidden><div id="score-strip" class="score-strip" aria-label="Your score"></div><div id="matching-view" hidden></div><div class="game-layout" id="battle-layout"><div class="map-column"><div class="map-toolbar"><span class="map-label">${CONFIG.businessName}</span><div class="map-controls"><button id="pause" class="mini-button">Pause</button><button id="speed" class="mini-button" aria-label="Change battle speed">1× speed</button></div></div><div class="map-frame"><div id="game-container"></div><div id="overlay"></div><div id="placement-hint" class="placement-hint" hidden>Select a tower, then click a numbered pad.</div></div><div class="map-footer"><span><i class="legend-dot prevent"></i> Prevent · direct</span><span><i class="legend-dot detect"></i> Detect · slow + mark</span><span><i class="legend-dot respond"></i> Respond · area</span></div></div><aside class="side-panel game-sidebar" id="game-sidebar" aria-label="Mission controls"></aside></div></section>
+ <footer class="page-footer"><span>${CONFIG.gameName}</span><span>Best survival: <b id="best-wave">${best}</b> waves</span></footer>
 </main><div class="toast" id="toast" role="status" hidden></div>
 <dialog id="story-dialog" class="story-dialog" aria-labelledby="story-title" aria-describedby="story-content"></dialog>
 <dialog id="restart-dialog"><p class="eyebrow">START AGAIN</p><h2>Build a different defence?</h2><p>This run will be cleared. Your best survival record stays saved on this browser.</p><div class="button-row"><button class="secondary" id="cancel-restart">Keep playing</button><button class="primary" id="confirm-restart">Start new run</button></div></dialog>
 <dialog id="tutorial-dialog" class="tutorial-dialog" aria-modal="true" aria-labelledby="tutorial-title" aria-describedby="tutorial-intro">
-  <div class="tutorial-header"><div><p class="eyebrow">QUICK START / NETWORK DEFENCE LAB</p><h2 id="tutorial-title">Protect the network. Make the right calls.</h2><p id="tutorial-intro">Build a balanced defence for Northstar Energy, then adapt it as the attack unfolds.</p></div><button type="button" class="dialog-close" id="close-tutorial" aria-label="Close tutorial">×</button></div>
+  <div class="tutorial-header"><div><p class="eyebrow">QUICK START</p><h2 id="tutorial-title">Protect the network. Make the right calls.</h2><p id="tutorial-intro">Build a balanced defence for Northstar Energy, then adapt it as the attack unfolds.</p></div><button type="button" class="dialog-close" id="close-tutorial" aria-label="Close tutorial">×</button></div>
   <div class="tutorial-grid">
     <section class="tutorial-step"><span class="tutorial-number">01</span><div><h3>Build your loadout</h3><p>Buy control cards with your £3m budget. Include at least one <b class="tutorial-category prevent">Prevent</b>, <b class="tutorial-category detect">Detect</b> and <b class="tutorial-category respond">Respond</b> card.</p></div></section>
     <section class="tutorial-step"><span class="tutorial-number">02</span><div><h3>Match controls to threats</h3><p>Read each phase’s story, then drag your purchased cards onto the nine named boxes. You can also select a card, then select its box. Match every card you own to earn 3, 2 or 1 points and a tower of that level.</p></div></section>
@@ -147,21 +147,21 @@ function renderShop(readOnly = false) {
 function phaseHeading() {
   if (run.stage === "shop")
     return [
-      "01 / BUILD YOUR LOADOUT",
-      "Good defence starts with a decision.",
-      `Protect ${CONFIG.businessName}. Choose your controls, earn your towers, and outlast the attack.`,
+      "LOADOUT",
+      "Choose your defences",
+      `Buy controls for ${CONFIG.businessName} before the attack begins.`,
     ];
   if (run.stage === "gameover")
     return [
-      "RUN COMPLETE / DEBRIEF",
-      "Every decision leaves a trace.",
-      "Review what worked, then try a different defence.",
+      "RESULTS",
+      "Run complete",
+      "Review your results or start a new run.",
     ];
   if (run.survivalWave > 0 || run.stage === "intermission")
     return [
-      "05 / SURVIVAL MODE",
-      "How long can your network hold?",
-      "Your loadout is complete. The attackers get stronger with every wave.",
+      "AFTER PHASE 4",
+      "Survival mode",
+      "The attackers get stronger with every wave.",
     ];
   const p = data.phases[run.phase];
   return [
@@ -303,6 +303,9 @@ function render() {
   $("eyebrow").textContent = eyebrow;
   $("heading").textContent = heading;
   $("subtitle").textContent = subtitle;
+  const hasScenario = !shop && run.stage !== "gameover" && run.stage !== "intermission" && run.survivalWave === 0;
+  $("scenario-label").hidden = !hasScenario;
+  $("scenario-summary").classList.toggle("has-scenario", hasScenario);
   renderTimeline();
   const matching = run.stage === "match" || run.stage === "story";
   $("matching-view").hidden = !matching;

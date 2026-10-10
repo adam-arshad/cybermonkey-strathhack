@@ -82,15 +82,6 @@ a {
   font-size: 22px;
   letter-spacing: -0.6px;
 }
-.brand small {
-  display: block;
-  font-family: monospace;
-  font-weight: 500;
-  font-size: 9px;
-  letter-spacing: 2.1px;
-  margin-top: 4px;
-  color: var(--muted);
-}
 .brand .light {
   font-weight: 400;
 }
@@ -101,40 +92,13 @@ a {
   background: url("/favicon.svg") center/contain no-repeat;
   display: block;
 }
-.top-meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: monospace;
-  font-size: 10px;
-  color: var(--muted);
-  letter-spacing: 0.7px;
-}
-.online-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--mint);
-  box-shadow: 0 0 12px #9eebbd66;
-}
-.separator {
-  margin: 0 10px;
-  color: #526871;
-}
 main {
   max-width: 1540px;
   margin: auto;
   padding: 34px 4vw 0;
 }
 .mission-title {
-  display: flex;
-  justify-content: space-between;
-  gap: 30px;
   margin: 0 0 26px;
-}
-.mission-title > div:first-child {
-  max-width: 1000px;
 }
 .eyebrow {
   font-family: monospace;
@@ -159,6 +123,28 @@ h1 {
   color: var(--muted);
   margin: 0;
 }
+.scenario-summary.has-scenario {
+  max-width: 960px;
+  padding: 18px 22px;
+  background: #edf3ee;
+  border-left: 4px solid var(--mint);
+  border-radius: 0 8px 8px 0;
+}
+.scenario-label {
+  margin: 0 0 6px;
+  color: #205e40;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+.has-scenario #subtitle {
+  max-width: none;
+  color: #24352d;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.55;
+}
 h2 {
   font-size: 24px;
   line-height: 1.2;
@@ -174,29 +160,6 @@ h3 {
 }
 p {
   line-height: 1.6;
-}
-.session-number {
-  white-space: nowrap;
-  text-align: right;
-  padding: 2px 0;
-  min-width: 180px;
-}
-.session-number > span,
-.session-number small {
-  display: block;
-  font: 9px monospace;
-  letter-spacing: 1.2px;
-  color: var(--muted);
-}
-.session-number strong {
-  font-size: 32px;
-  font-weight: 500;
-  display: block;
-  margin: 5px 0;
-}
-.session-number strong span {
-  font-size: 14px;
-  color: var(--muted);
 }
 .timeline {
   display: flex;
@@ -647,11 +610,10 @@ hr {
   height: 49px;
 }
 .map-label {
-  font: 9px monospace;
-  letter-spacing: 1.1px;
+  font-size: 12px;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 9px;
 }
 .map-controls {
   display: flex;
@@ -706,11 +668,6 @@ canvas {
   border-radius: 50%;
   margin-right: 5px;
   background: currentColor;
-}
-.map-note {
-  width: 100%;
-  font-size: 9px;
-  color: var(--muted);
 }
 .phase-stamp {
   font: 10px monospace;
@@ -1317,9 +1274,6 @@ dialog > p:not(.eyebrow) {
     gap: 7px;
     font-size: 10px;
   }
-  .session-number {
-    display: none;
-  }
   .map-frame #overlay {
     padding: 19px;
   }
@@ -1350,15 +1304,6 @@ dialog > p:not(.eyebrow) {
   .map-frame {
     min-height: 550px;
   }
-  .top-meta {
-    font-size: 0;
-  }
-  .top-meta .separator {
-    display: none;
-  }
-  .top-meta .text-button {
-    font-size: 11px;
-  }
   .timeline {
     overflow: auto;
   }
@@ -1375,9 +1320,6 @@ dialog > p:not(.eyebrow) {
   }
   .mission-title {
     margin-bottom: 22px;
-  }
-  .map-note {
-    width: auto;
   }
 }
 @media (max-width: 650px) {
@@ -1396,9 +1338,6 @@ dialog > p:not(.eyebrow) {
   .brand {
     font-size: 18px;
   }
-  .brand small {
-    font-size: 8px;
-  }
   .monkey {
     width: 34px;
     height: 34px;
@@ -1406,6 +1345,12 @@ dialog > p:not(.eyebrow) {
   .mission-title h1 {
     font-size: 29px;
     letter-spacing: -1px;
+  }
+  .scenario-summary.has-scenario {
+    padding: 15px 17px;
+  }
+  .has-scenario #subtitle {
+    font-size: 14px;
   }
   .shop-layout {
     display: flex;
@@ -1468,9 +1413,6 @@ dialog > p:not(.eyebrow) {
   .page-footer {
     font-size: 9px;
     flex-wrap: wrap;
-  }
-  .page-footer > span:nth-child(2) {
-    display: none;
   }
   .map-frame,
   .map-frame #game-container {
@@ -1563,12 +1505,6 @@ body {
 .page-footer {
   border-color: #d8e2dc;
 }
-.separator {
-  color: #829188;
-}
-.online-dot {
-  box-shadow: 0 0 0 3px #28734e1c;
-}
 .eyebrow,
 .page-footer > b,
 .text-button:hover,
@@ -1647,15 +1583,10 @@ body {
   color: #94523c;
 }
 .card-code,
-.top-meta,
-.brand small,
-.session-number > span,
-.session-number small,
 .muted,
 .fine-print,
 .help-text,
 .page-footer,
-.map-note,
 .map-footer,
 .field-label,
 .tower-option small,
