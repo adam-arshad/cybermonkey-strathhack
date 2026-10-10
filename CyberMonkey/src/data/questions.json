@@ -42,10 +42,7 @@
       "explanation": "Legitimate organisations should never ask you to reveal your password by email. Requests for passwords are a common phishing technique used to gain access to accounts.",
       "difficulty_driver": "Curiosity",
       "phase_id": "phase_1",
-      "related_controls": [
-        "P6",
-        "P5"
-      ]
+      "related_controls": ["P6", "P5"]
     },
     {
       "id": "Q02",
@@ -64,11 +61,7 @@
       "explanation": "Unexpected attachments should always be treated with caution. Verifying before opening helps prevent malware infections and phishing attacks.",
       "difficulty_driver": "Urgency",
       "phase_id": "phase_1",
-      "related_controls": [
-        "P6",
-        "P1",
-        "P5"
-      ]
+      "related_controls": ["P6", "P1", "P5"]
     },
     {
       "id": "Q03",
@@ -87,10 +80,7 @@
       "explanation": "Business pressures and deadlines can encourage quick decisions. Taking time to verify unusual requests helps prevent fraud and phishing attacks.",
       "difficulty_driver": "Time Pressure",
       "phase_id": "phase_1",
-      "related_controls": [
-        "P6",
-        "P5"
-      ]
+      "related_controls": ["P6", "P5"]
     },
     {
       "id": "Q04",
@@ -109,10 +99,7 @@
       "explanation": "This scenario is difficult because it combines urgency, familiarity and genuine business context. Attackers often mimic trusted individuals and real projects to bypass normal verification processes.",
       "difficulty_driver": "Familiarity + Urgency",
       "phase_id": "phase_1",
-      "related_controls": [
-        "P6",
-        "P5"
-      ]
+      "related_controls": ["P6", "P5"]
     },
     {
       "id": "Q05",
@@ -131,10 +118,7 @@
       "explanation": "Using different passwords for different accounts limits the impact of a single compromise and helps protect personal and work accounts.",
       "difficulty_driver": "Convenience",
       "phase_id": null,
-      "related_controls": [
-        "P7",
-        "P5"
-      ]
+      "related_controls": ["P7", "P5"]
     },
     {
       "id": "Q06",
@@ -153,10 +137,7 @@
       "explanation": "Passwords should never be shared, even with trusted colleagues. Individual accounts provide accountability and help protect systems and information. Colleagues should use approved support channels to resolve access issues.",
       "difficulty_driver": "Helping Colleague",
       "phase_id": null,
-      "related_controls": [
-        "P7",
-        "P5"
-      ]
+      "related_controls": ["P7", "P5"]
     },
     {
       "id": "Q07",
@@ -175,10 +156,7 @@
       "explanation": "Sharing accounts removes accountability and can create security risks. Everyone should use their own authorised access.",
       "difficulty_driver": "Helping Colleague",
       "phase_id": null,
-      "related_controls": [
-        "P7",
-        "P5"
-      ]
+      "related_controls": ["P7", "P5"]
     },
     {
       "id": "Q08",
@@ -197,10 +175,7 @@
       "explanation": "This scenario is difficult because the individual knows genuine information that creates trust. Legitimate support teams do not need your password, and identity should always be verified independently.",
       "difficulty_driver": "Trust + Authority",
       "phase_id": "phase_3",
-      "related_controls": [
-        "P7",
-        "P5"
-      ]
+      "related_controls": ["P7", "P5"]
     },
     {
       "id": "Q09",
@@ -219,10 +194,7 @@
       "explanation": "Unexpected MFA prompts can indicate somebody is attempting to access your account. Never approve a request you did not initiate.",
       "difficulty_driver": "Awareness",
       "phase_id": "phase_2",
-      "related_controls": [
-        "P7",
-        "P5"
-      ]
+      "related_controls": ["P7", "P5"]
     },
     {
       "id": "Q10",
@@ -241,11 +213,7 @@
       "explanation": "Unexpected MFA prompts may indicate someone is attempting to access your account. Even if the prompts stop, reporting suspicious activity helps security teams investigate and protect accounts.",
       "difficulty_driver": "Assumption",
       "phase_id": "phase_2",
-      "related_controls": [
-        "P7",
-        "R1",
-        "P5"
-      ]
+      "related_controls": ["P7", "R1", "P5"]
     },
     {
       "id": "Q11",
@@ -264,11 +232,7 @@
       "explanation": "Unexpected MFA requests can indicate attempted account compromise. Convenience should never override secure behaviour.",
       "difficulty_driver": "Time Pressure",
       "phase_id": "phase_2",
-      "related_controls": [
-        "P7",
-        "R1",
-        "P5"
-      ]
+      "related_controls": ["P7", "R1", "P5"]
     },
     {
       "id": "Q12",
@@ -287,10 +251,7 @@
       "explanation": "This scenario is difficult because the caller appears helpful and creates urgency. Attackers frequently use MFA fatigue and social engineering to gain account access. Only approve requests connected to your own actions.",
       "difficulty_driver": "Authority + Urgency",
       "phase_id": "phase_3",
-      "related_controls": [
-        "P7",
-        "P5"
-      ]
+      "related_controls": ["P7", "P5"]
     },
     {
       "id": "Q13",
@@ -309,9 +270,7 @@
       "explanation": "Unexpected messages asking you to click links or provide information should be treated with caution. Criminals often use text messages to lead people to fake websites.",
       "difficulty_driver": "Curiosity",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q14",
@@ -330,9 +289,7 @@
       "explanation": "Unexpected messages often create urgency to encourage quick decisions. Using trusted sources helps avoid scams and protects personal information.",
       "difficulty_driver": "Urgency",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q15",
@@ -351,10 +308,7 @@
       "explanation": "Phone calls can be used to build trust and obtain sensitive information. Always verify identities before sharing information or taking action.",
       "difficulty_driver": "Trust",
       "phase_id": "phase_3",
-      "related_controls": [
-        "P7",
-        "P5"
-      ]
+      "related_controls": ["P7", "P5"]
     },
     {
       "id": "Q16",
@@ -373,10 +327,7 @@
       "explanation": "This scenario is difficult because the caller appears credible and uses genuine information to build trust. Attackers often combine urgency and familiarity to persuade people to bypass verification processes.",
       "difficulty_driver": "Trust + Familiarity",
       "phase_id": "phase_3",
-      "related_controls": [
-        "P7",
-        "P5"
-      ]
+      "related_controls": ["P7", "P5"]
     },
     {
       "id": "Q17",
@@ -395,9 +346,7 @@
       "explanation": "Only approved applications should be used for company work. Unapproved software can introduce security, privacy or compliance risks.",
       "difficulty_driver": "Convenience",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q18",
@@ -416,9 +365,7 @@
       "explanation": "Criminals sometimes replace legitimate QR codes with malicious versions. Verifying the source helps prevent phishing and malware attacks.",
       "difficulty_driver": "Convenience",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q19",
@@ -437,9 +384,7 @@
       "explanation": "Even in legitimate settings, it is good practice to verify links before using them. Social pressure should not replace good judgement.",
       "difficulty_driver": "Social Pressure",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q20",
@@ -458,9 +403,7 @@
       "explanation": "This scenario is difficult because it involves a genuine colleague, real project and time pressure. Attackers often exploit trusted channels to encourage quick decisions without verification.",
       "difficulty_driver": "Trust + Urgency",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q21",
@@ -479,9 +422,7 @@
       "explanation": "Social engineering often starts with gathering information. Seemingly harmless details can be used to support future attacks.",
       "difficulty_driver": "Desire to Help",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q22",
@@ -500,10 +441,7 @@
       "explanation": "Security controls are in place to protect people, systems and information. Concerns about bypassing controls should be challenged or reported appropriately.",
       "difficulty_driver": "Social Pressure",
       "phase_id": "phase_4",
-      "related_controls": [
-        "R1",
-        "P5"
-      ]
+      "related_controls": ["R1", "P5"]
     },
     {
       "id": "Q23",
@@ -522,9 +460,7 @@
       "explanation": "Friendly interactions can still be used to gain unauthorised access. Situational awareness helps balance helpfulness with security.",
       "difficulty_driver": "Trust",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q24",
@@ -543,9 +479,7 @@
       "explanation": "This scenario is difficult because the request involves a genuine contractor and legitimate business activity. Attackers can exploit trust and familiarity to gather information that can support future attacks.",
       "difficulty_driver": "Trust + Familiarity",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q25",
@@ -564,9 +498,7 @@
       "explanation": "Unlocked devices can provide unauthorised access to information, systems and accounts. Locking devices helps protect company information.",
       "difficulty_driver": "Distraction",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q26",
@@ -585,9 +517,7 @@
       "explanation": "Secure areas rely on access controls. Tailgating can allow unauthorised individuals to enter restricted locations.",
       "difficulty_driver": "Politeness",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q27",
@@ -606,9 +536,7 @@
       "explanation": "Good physical security includes protecting information from unnecessary exposure. A clear desk helps reduce accidental disclosure.",
       "difficulty_driver": "Workplace Pressure",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q28",
@@ -627,9 +555,7 @@
       "explanation": "This scenario is difficult because the visitor appears genuine and creates urgency. Physical security controls are effective only when procedures are followed consistently.",
       "difficulty_driver": "Trust + Urgency",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q29",
@@ -648,10 +574,7 @@
       "explanation": "Mistakes can happen. Prompt reporting allows appropriate action to be taken quickly and helps reduce the impact of a potential information security incident.",
       "difficulty_driver": "Human Error",
       "phase_id": "phase_1",
-      "related_controls": [
-        "R1",
-        "P5"
-      ]
+      "related_controls": ["R1", "P5"]
     },
     {
       "id": "Q30",
@@ -670,9 +593,7 @@
       "explanation": "Using approved company methods helps protect sensitive information and ensures the appropriate security controls remain in place.",
       "difficulty_driver": "Helping Colleague",
       "phase_id": "phase_4",
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q31",
@@ -691,9 +612,7 @@
       "explanation": "Deadlines should not override good information-handling practices. Only information that is genuinely needed should be shared.",
       "difficulty_driver": "Deadline Pressure",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q32",
@@ -712,9 +631,7 @@
       "explanation": "This scenario is difficult because it involves a genuine colleague, project and business need. Attackers often use urgency and trust to encourage people to bypass normal controls.",
       "difficulty_driver": "Trust + Urgency",
       "phase_id": "phase_4",
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q33",
@@ -733,9 +650,7 @@
       "explanation": "Information shared publicly can be used by attackers to learn about an organisation or individual and support future attacks.",
       "difficulty_driver": "Recognition",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q34",
@@ -754,9 +669,7 @@
       "explanation": "Professional networking platforms can be used for information gathering. Internal information should only be shared through approved and verified channels.",
       "difficulty_driver": "Professional Curiosity",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q35",
@@ -775,9 +688,7 @@
       "explanation": "Professional profiles should balance personal achievements with protecting sensitive company information.",
       "difficulty_driver": "Professional Recognition",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q36",
@@ -796,9 +707,7 @@
       "explanation": "This scenario is difficult because the individual appears credible and has genuine connections. Attackers often use trust and familiarity to gather information gradually.",
       "difficulty_driver": "Familiarity + Trust",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q37",
@@ -817,10 +726,7 @@
       "explanation": "Security controls should not be disabled without proper authorisation. If a tool causes a problem, use the approved support process so the issue can be investigated safely.",
       "difficulty_driver": "Convenience",
       "phase_id": "phase_2",
-      "related_controls": [
-        "P1",
-        "P5"
-      ]
+      "related_controls": ["P1", "P5"]
     },
     {
       "id": "Q38",
@@ -839,9 +745,7 @@
       "explanation": "Urgency should not override secure working practices. Public networks should be approached cautiously and used according to company guidance.",
       "difficulty_driver": "Urgency",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q39",
@@ -860,9 +764,7 @@
       "explanation": "Situational awareness is important when working in public. Information can be exposed through shoulder surfing and other risks.",
       "difficulty_driver": "Workplace Context",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     },
     {
       "id": "Q40",
@@ -881,9 +783,7 @@
       "explanation": "This scenario is difficult because urgency and social proof make the situation appear safe. Secure access procedures should still be followed even when time pressure exists.",
       "difficulty_driver": "Social Proof + Urgency",
       "phase_id": null,
-      "related_controls": [
-        "P5"
-      ]
+      "related_controls": ["P5"]
     }
   ]
 }
