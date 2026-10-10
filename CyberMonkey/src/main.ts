@@ -16,7 +16,8 @@ const questionIds = ["Q01", "Q09", "Q12", "Q30"];
 let run = new Run(data),
   filter = "All",
   selected: string | null = null,
-  viewingLoadout = false;
+  viewingLoadout = false,
+  detailOpenId: string | null = null;
 let renderer: ReturnType<typeof startGame> | null = null;
 let questionKey = "",
   questionSeconds = 30,
@@ -75,7 +76,7 @@ $("app").innerHTML = `
 <main>
  <div class="mission-title"><div><p class="eyebrow" id="eyebrow">01 / BUILD YOUR LOADOUT</p><h1 id="heading" tabindex="-1">Good defence starts with a decision.</h1><p id="subtitle">Protect ${CONFIG.businessName}. Choose your controls, earn your towers, and outlast the attack.</p></div><div class="session-number"><span>SCENARIO</span><strong>04<span> phases</span></strong><small>ONE NETWORK. YOUR CALL.</small></div></div>
  <nav class="timeline" aria-label="Game progress" id="timeline"></nav>
- <section id="shop-view" class="shop-layout"><div><div class="section-header"><div><p class="eyebrow">CONTROL LIBRARY</p><h2>Your first line of defence</h2></div><span class="muted">18 controls available</span></div><div class="filters" role="group" aria-label="Filter controls" id="filters"></div><div class="catalog" id="catalog"></div></div><aside id="shop-sidebar" class="side-panel" aria-label="Your loadout"></aside></section>
+ <section id="shop-view" class="shop-layout"><div><div class="section-header"><div><p class="eyebrow">CONTROL LIBRARY</p><h2>Your first line of defence</h2></div><span class="muted">${data.controls.length} controls available</span></div><div class="filters" role="group" aria-label="Filter controls" id="filters"></div><div class="catalog" id="catalog"></div></div><aside id="shop-sidebar" class="side-panel" aria-label="Your loadout"></aside></section>
  <section id="game-view" hidden><div class="game-layout"><div class="map-column"><div class="map-toolbar"><span class="map-label"><span class="online-dot"></span> ${CONFIG.businessName.toUpperCase()} / SECTOR 07</span><div class="map-controls"><button id="pause" class="mini-button">Pause</button><button id="speed" class="mini-button" aria-label="Change battle speed">1× speed</button></div></div><div class="map-frame"><div id="game-container"></div><div id="overlay"></div><div id="placement-hint" class="placement-hint" hidden>Select a tower, then click a numbered pad.</div></div><div class="map-footer"><span><i class="legend-dot prevent"></i> Prevent · direct</span><span><i class="legend-dot detect"></i> Detect · slow + mark</span><span><i class="legend-dot respond"></i> Respond · area</span><span class="map-note">Combat illustrates resilience; it is not a real security simulation.</span></div></div><aside class="side-panel game-sidebar" id="game-sidebar" aria-label="Mission controls"></aside></div></section>
  <footer class="page-footer"><span>${CONFIG.gameName} <span class="muted">/ StrathHack MVP</span></span><span>Built for better cyber decisions.</span><span>Best survival: <b id="best-wave">${best}</b> waves</span></footer>
 </main><div class="toast" id="toast" role="status" hidden></div>
@@ -124,15 +125,16 @@ function renderShop(readOnly = false) {
     .filter((c) => filter === "All" || c.category === filter)
     .map((c: Control) => {
       const owned = run.chosen.includes(c.id),
-        over = !owned && c.cost > data.budget - run.spent;
-      return `<article class="control-card ${categoryClass(c.category)} ${owned ? "selected" : ""}"><div class="card-top">${mark(c.category)}<span class="card-code">${c.id} / ${c.category}</span><span class="owned-check">${owned ? "✓" : ""}</span></div><h3>${esc(c.name)}</h3><p>${esc(c.description)}</p><details><summary>Where it helps</summary><p>${esc(c.use_case)}</p><p class="limitation">${esc(c.limitation)}</p></details><div class="card-bottom"><strong>${money(c.cost)}</strong><button id="buy-${c.id}" data-buy="${c.id}" class="card-buy ${owned ? "remove" : ""}" aria-label="${owned ? "Remove" : "Buy"} ${esc(c.name)}" ${readOnly || over ? "disabled" : ""}>${owned ? "Selected ✓" : over ? "Over budget" : "+ Add"}</button></div></article>`;
+        over = !owned && c.cost > data.budget - run.spent,
+        expanded = detailOpenId === c.id;
+      return `<article class="control-card ${categoryClass(c.category)} ${owned ? "selected" : ""} ${expanded ? "expanded" : ""}"><div class="card-top">${mark(c.category)}<span class="card-code">${c.id}</span><button class="card-detail-toggle" data-detail="${c.id}" aria-label="${expanded ? "Hide" : "Show"} details for ${esc(c.name)}" aria-expanded="${expanded}">？</button><span class="owned-check">${owned ? "✓" : ""}</span></div><h3>${esc(c.name)}</h3><div class="card-popout" role="dialog" aria-live="polite"><p>${esc(c.description)}</p><div class="card-meta"><strong>Where it helps</strong><p>${esc(c.use_case)}</p></div><div class="card-meta limitation"><strong>Limitation</strong><p>${esc(c.limitation)}</p></div></div><div class="card-bottom"><strong>${money(c.cost)}</strong><button id="buy-${c.id}" data-buy="${c.id}" class="card-buy ${owned ? "remove" : ""}" aria-label="${owned ? "Remove" : "Buy"} ${esc(c.name)}" ${readOnly || over ? "disabled" : ""}>${owned ? "Selected ✓" : over ? "Over budget" : "+ Add"}</button></div></article>`;
     })
     .join("");
   const missing = CATEGORIES.filter(
     (c) => !run.chosen.some((id) => control(id).category === c),
   );
   $("shop-sidebar").innerHTML =
-    `${readOnly ? '<button id="return-mission" class="secondary full">Return to mission</button><p class="eyebrow">LOCKED LOADOUT</p>' : '<p class="eyebrow">YOUR SECURITY BUDGET</p>'}<div class="budget">${money(data.budget - run.spent)}</div><p class="muted small">remaining of ${money(data.budget)}</p><div class="budget-track"><div style="width:${(run.spent / data.budget) * 100}%"></div></div><div class="mini-stat"><span>Committed</span><strong>${money(run.spent)}</strong></div><hr><h3>${readOnly ? "Your selected controls." : "Cover every layer."}</h3><p class="muted small">${readOnly ? "Review your choices for this run. They cannot be changed after the attack starts." : "Choose at least one control from each category. Your loadout locks when the attack starts."}</p><div class="category-checks">${ownedBadges()}</div><div class="loadout"><div class="mini-stat"><span>YOUR CARDS</span><span>${run.chosen.length} selected</span></div>${run.chosen.length ? run.chosen.map((id) => `<div class="loadout-row">${mark(control(id).category)}<span>${esc(control(id).name)}</span>${readOnly ? "" : `<button class="text-button" data-buy="${id}" aria-label="Remove ${esc(control(id).name)}">×</button>`}</div>`).join("") : '<p class="muted small empty-loadout">Your defence starts here. Add cards from the library.</p>'}</div>${readOnly ? "" : `<button id="lock" class="primary full" ${missing.length ? "disabled" : ""}>Lock loadout & start →</button><p class="help-text">${missing.length ? "Still needed: " + missing.join(", ") : "Ready. Cards cannot be changed after confirmation."}</p><button id="starter" class="secondary full">Use a balanced starter loadout</button>`}<hr><p class="eyebrow">THE PLAN</p><ol class="howto"><li>Buy controls within your budget.</li><li>Match cards to earn level 1–3 towers.</li><li>Place towers and defend four waves.</li><li>Answer checkpoints. Survive the escalation.</li></ol><details class="baseline"><summary>Already protecting your business</summary>${data.already_in_place.map((c) => `<p><b>${esc(c.name)}</b><br>${esc(c.why_no_score)}</p>`).join("")}<p>These are not purchasable and do not earn points or count towards category coverage.</p></details>`;
+    `${readOnly ? '<button id="return-mission" class="secondary full">Return to mission</button><p class="eyebrow">LOCKED LOADOUT</p>' : '<p class="eyebrow">YOUR SECURITY BUDGET</p>'}<div class="budget">${money(data.budget - run.spent)}</div><p class="muted small">remaining of ${money(data.budget)}</p><div class="budget-track"><div style="width:${(run.spent / data.budget) * 100}%"></div></div><div class="mini-stat"><span>Committed</span><strong>${money(run.spent)}</strong></div><hr><div class="category-checks">${ownedBadges()}</div><div class="loadout"><div class="mini-stat"><span>YOUR CARDS</span><span>${run.chosen.length} selected</span></div>${run.chosen.length ? run.chosen.map((id) => `<div class="loadout-row">${mark(control(id).category)}<span>${esc(control(id).name)}</span>${readOnly ? "" : `<button class="text-button" data-buy="${id}" aria-label="Remove ${esc(control(id).name)}">×</button>`}</div>`).join("") : '<p class="muted small empty-loadout">Your defence starts here. Add cards from the library.</p>'}</div>${readOnly ? "" : `<button id="lock" class="primary full" ${missing.length ? "disabled" : ""}>Lock loadout & start →</button><p class="help-text">${missing.length ? "Still needed: " + missing.join(", ") : "Ready. Cards cannot be changed after confirmation."}</p><button id="starter" class="secondary full">Use a balanced starter loadout</button>`}<details class="baseline"><summary>Already protecting your business</summary>${data.already_in_place.map((c) => `<p><b>${esc(c.name)}</b><br>${esc(c.why_no_score)}</p>`).join("")}<p>These are not purchasable and do not earn points or count towards category coverage.</p></details>`;
 }
 function phaseHeading() {
   if (run.stage === "shop")
@@ -348,6 +350,11 @@ function restart() {
 $("app").addEventListener("click", (event) => {
   const b = (event.target as HTMLElement).closest<HTMLButtonElement>("button");
   if (!b || b.disabled) return;
+  if (b.dataset.detail) {
+    detailOpenId = detailOpenId === b.dataset.detail ? null : b.dataset.detail;
+    render();
+    return;
+  }
   if (b.dataset.buy) {
     attempt(() => run.toggle(b.dataset.buy!));
     return;
