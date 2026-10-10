@@ -11,7 +11,7 @@ import type {
 export const CONFIG = {
   gameName: "CyberMonkey",
   businessName: "Northstar Energy",
-  behaviourPoints: 3,
+  behaviourPoints: 50,
   shieldBonus: 5,
 };
 export const CATEGORIES: Category[] = ["Prevent", "Detect", "Respond"];
@@ -23,7 +23,6 @@ export type Stage =
   | "deploy"
   | "battle"
   | "question"
-  | "intermission"
   | "gameover";
 
 // Explicit rankings avoid silently changing the board when source scores tie.
@@ -81,6 +80,12 @@ export class Run {
   get controlScore() {
     return this.towers.reduce((sum, tower) => sum + tower.level, 0);
   }
+  get waveScore() {
+    return this.cleared * 100;
+  }
+  get finalScore() {
+    return this.stage === "gameover" ? this.controlScore + this.behaviour + this.waveScore : null;
+  }
   get phaseScore() {
     return this.claimed.reduce((sum, id) => sum + matchPoints(this.phase, id), 0);
   }
@@ -94,7 +99,7 @@ export class Run {
     return this.offers.filter((id) => this.chosen.includes(id));
   }
   get pending() {
-    return this.towers.filter((t) => t.pad === null);
+    return this.towers.filter((t) => t.pad === null && t.hp > 0);
   }
   toggle(id: string) {
     if (this.stage !== "shop")
@@ -128,11 +133,14 @@ export class Run {
     )
       return false;
     const c = this.data.controls.find((c) => c.id === id)!;
+    const level = matchPoints(this.phase, id);
     this.towers.push({
       uid: `${this.phase}-${id}`,
       controlId: id,
       category: c.category,
-      level: matchPoints(this.phase, id),
+      level,
+      hp: level * 2,
+      maxHp: level * 2,
       pad: null,
     });
     this.claimed.push(id);
@@ -149,7 +157,7 @@ export class Run {
       this.stage !== "deploy" ||
       !Number.isInteger(pad) ||
       !PADS[pad] ||
-      this.towers.some((t) => t.pad === pad)
+      this.towers.some((t) => t.pad === pad && t.hp > 0)
     )
       return false;
     const t = this.towers.find((t) => t.uid === uid && t.pad === null);
@@ -162,7 +170,7 @@ export class Run {
       i,
       score: distanceToRoute(p) + Math.abs(p.x - 500) * 0.04,
     }))
-      .filter((p) => !this.towers.some((t) => t.pad === p.i))
+      .filter((p) => !this.towers.some((t) => t.pad === p.i && t.hp > 0))
       .sort((a, b) => a.score - b.score);
     this.pending.forEach((t) => {
       const p = free.shift();
@@ -173,10 +181,6 @@ export class Run {
     if (this.stage === "deploy") {
       if (this.pending.length)
         throw Error("Place all earned towers before starting the wave.");
-    } else if (this.stage === "intermission") {
-      if (this.survivalWave === 0)
-        this.health = 100 + this.correctAnswers * CONFIG.shieldBonus;
-      this.survivalWave++;
     } else return false;
     this.stage = "battle";
     return true;
@@ -190,14 +194,17 @@ export class Run {
       if (health <= 0) this.stage = "gameover";
       else {
         this.cleared = this.survivalWave;
-        this.stage = "intermission";
+        this.survivalWave++;
       }
     } else if (this.phase < 3) {
       this.phase++;
       this.questionIndex = 0;
       this.claimed = [];
       this.stage = "story";
-    } else this.stage = "intermission";
+    } else {
+      this.health = 100 + this.correctAnswers * CONFIG.shieldBonus;
+      this.survivalWave = 1;
+    }
   }
   answer(answer: string | null) {
     const question = this.currentQuestion;

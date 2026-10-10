@@ -148,25 +148,26 @@ test("full four-phase run awards quizzes once, scores only matches, and enters s
     r.autoPlace();
     assert.equal(r.startBattle(), true);
     fight(r);
-    assert.equal(r.stage, phase < 3 ? "story" : "intermission");
+    assert.equal(r.stage, phase < 3 ? "story" : "battle");
   }
-  assert.equal(r.stage, "intermission");
-  assert.equal(r.behaviour, 60);
+  assert.equal(r.stage, "battle");
+  assert.equal(r.behaviour, 1000);
   assert.equal(r.answers.length, 20);
   assert.equal(new Set(r.answers.map((a) => a.id)).size, 20);
   assert.equal(r.controlScore, 38);
   assert.equal(r.controlScore, r.towers.reduce((sum, t) => sum + t.level, 0));
-  r.startBattle();
   assert.equal(r.health, 200);
   assert.equal(r.survivalWave, 1);
+  assert.equal(r.finalScore, null, "Total is calculated only after a loss");
   let loops = 0;
   while (r.stage !== "gameover" && loops++ < 60) {
     fight(r);
-    if (r.stage === "intermission") r.startBattle();
   }
   assert.equal(r.stage, "gameover");
   assert.ok(r.cleared >= 1);
   assert.ok(r.survivalWave < 60);
+  assert.equal(r.waveScore, r.cleared * 100);
+  assert.equal(r.finalScore, r.controlScore + 1000 + r.waveScore);
 });
 test("unanswered quiz grants no bonus and still allows the next phase", () => {
   const r = ready();
@@ -200,12 +201,35 @@ test("survival increases enemy count and health, while practice waves stay gentl
   assert.ok(waveSpec(3, 0).hp < waveSpec(3, 1).hp);
 });
 
+test("match points set tower HP and enemies can destroy a tower", () => {
+  const r = new Run(data, questions, () => 0.5);
+  r.chosen = ["P6", "P7", "P1", "D1", "R1"];
+  r.lock();
+  r.beginMatching();
+  for (const id of ["P6", "P7", "P1"]) r.claim(id, id);
+  assert.deepEqual(r.towers.map((t) => [t.level, t.hp, t.maxHp]), [
+    [3, 6, 6], [2, 4, 4], [1, 2, 2],
+  ]);
+
+  const tower = r.towers[2];
+  tower.pad = 0;
+  const battle = new Battle([tower], 100, 0, 0);
+  let returnFire = 0;
+  for (let tick = 0; tick < 5000 && !battle.done; tick++) {
+    battle.step(1 / 60);
+    returnFire += battle.enemyShots.length;
+  }
+  assert.ok(returnFire >= 2);
+  assert.equal(tower.hp, 0, "Tower damage persists on the earned tower");
+  assert.equal(r.controlScore, 6, "Losing a tower does not erase match points");
+});
+
 test("every pad lets a level-one tower attack the rehearsal route", () => {
   assert.ok(PADS.length >= 36, "Keep enough positions for all phase towers");
   for (const category of ["Prevent", "Detect", "Respond"] as const)
     for (let pad = 0; pad < PADS.length; pad++) {
       const battle = new Battle(
-        [{ uid: "placement-check", controlId: "check", category, level: 1, pad }],
+        [{ uid: "placement-check", controlId: "check", category, level: 1, hp: 2, maxHp: 2, pad }],
         100,
         0,
         0,
@@ -313,7 +337,7 @@ test("the selected question and answer order stay stable throughout a checkpoint
   r.answer(r.currentQuestion.correct);
   assert.deepEqual(r.currentQuestion, snapshot);
   assert.equal(r.health, 80);
-  assert.equal(r.behaviour, 3);
+  assert.equal(r.behaviour, 50);
   assert.deepEqual(r.currentQuestion, snapshot);
   assert.equal(r.answer(r.currentQuestion.correct), false);
   assert.equal(r.health, 80);
@@ -332,7 +356,7 @@ test("checkpoint progress cannot advance outside the quiz or award a finished an
   assert.equal(r.questionIndex, 4);
   assert.equal(r.nextQuestion(), false);
   assert.equal(r.answer(r.currentQuestion.correct), false);
-  assert.equal(r.behaviour, 15);
+  assert.equal(r.behaviour, 250);
   assert.equal(r.finishQuestions(), true);
   assert.equal(r.stage, "deploy");
   assert.equal(r.nextQuestion(), false);

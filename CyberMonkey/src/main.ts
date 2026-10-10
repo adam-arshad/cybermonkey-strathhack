@@ -29,6 +29,7 @@ let questionKey = "",
 let toastTimer: ReturnType<typeof setTimeout>;
 let lastLeakCount = 0;
 let lastBattleHealth = 100;
+let pausedBeforeLoadout = false;
 const money = (n: number) =>
   new Intl.NumberFormat("en-GB", {
     style: "currency",
@@ -76,6 +77,12 @@ const bridge: Bridge = {
     matchFeedback = "";
     bridge.paused = false;
     render();
+    if (run.stage === "battle" && run.survivalWave > 0) {
+      lastLeakCount = 0;
+      lastBattleHealth = run.health;
+      renderer?.scene.beginBattle();
+      notify(run.cleared ? `Wave ${run.cleared} cleared. +100 points. Wave ${run.survivalWave} begins.` : "Survival begins. Wave 1 is starting.");
+    }
   },
 };
 
@@ -98,9 +105,9 @@ $("app").innerHTML = `
     <section class="tutorial-step"><span class="tutorial-number">03</span><div><h3>Answer behaviour questions</h3><p>After matching your cards, answer five questions in a row, grouped by relevance to the phase. Answer choices change position each run. Correct answers improve your behaviour score and integrity.</p></div></section>
     <section class="tutorial-step"><span class="tutorial-number">04</span><div><h3>Place your towers</h3><p>Select each earned tower and place it on a numbered pad near the route. All towers must be placed before you start a wave.</p></div></section>
     <section class="tutorial-step"><span class="tutorial-number">05</span><div><h3>Defend the network</h3><p><b class="tutorial-category prevent">Prevent</b> deals direct damage, <b class="tutorial-category detect">Detect</b> slows and marks enemies, and <b class="tutorial-category respond">Respond</b> hits groups.</p></div></section>
-    <section class="tutorial-step"><span class="tutorial-number">06</span><div><h3>Survive the attack</h3><p>Use pause and speed controls when needed. Complete all four phases, then launch survival waves and keep network integrity above zero.</p></div></section>
+    <section class="tutorial-step"><span class="tutorial-number">06</span><div><h3>Survive the attack</h3><p>After all four phases, survival waves start automatically. Enemies can damage towers; each tower has 2 HP per match point. Keep network integrity above zero.</p></div></section>
   </div>
-  <div class="tutorial-footer"><p class="fine-print">Your learning score combines matched control points and behaviour points. Survival waves are tracked separately.</p><button type="button" class="primary" id="start-tutorial">Got it — start playing →</button></div>
+  <div class="tutorial-footer"><p class="fine-print">Correct quiz answers earn 50 points. Each survival wave cleared earns 100 points. Your total appears when the run ends.</p><button type="button" class="primary" id="start-tutorial">Got it — start playing →</button></div>
 </dialog>`;
 
 function notify(message: string) {
@@ -158,7 +165,7 @@ function phaseHeading() {
       "Run complete",
       "Review your results or start a new run.",
     ];
-  if (run.survivalWave > 0 || run.stage === "intermission")
+  if (run.survivalWave > 0)
     return [
       "AFTER PHASE 4",
       "Survival mode",
@@ -184,7 +191,7 @@ function renderTimeline() {
       const current =
         run.stage === "shop"
           ? 0
-          : run.stage === "intermission" || run.survivalWave > 0
+          : run.survivalWave > 0
             ? 5
             : run.phase + 1;
       return `<div class="timeline-step ${i === current ? "current" : i < current ? "complete" : ""}" ${i === current ? 'aria-current="step"' : ""}><span>${i < current ? "✓" : String(i).padStart(2, "0")}</span><b>${name}</b></div>`;
@@ -235,7 +242,7 @@ function submitMatch(id: string, targetId: string) {
   }
 }
 function commonSidebar() {
-  return `<div class="phase-stamp">${run.survivalWave ? "SURVIVAL / " + String(run.survivalWave).padStart(2, "0") : run.stage === "intermission" ? "SURVIVAL / READY" : "ATTACK PHASE / 0" + (run.phase + 1)}</div>`;
+  return `<div class="phase-stamp">${run.survivalWave ? "SURVIVAL / WAVE " + String(run.survivalWave).padStart(2, "0") : "ATTACK PHASE / 0" + (run.phase + 1)}</div>`;
 }
 function renderSidebar() {
   let html = commonSidebar();
@@ -244,17 +251,15 @@ function renderSidebar() {
       selected = run.pending[0]?.uid ?? null;
     bridge.selected = selected;
     const free = PADS.map((_, i) => i).filter(
-      (i) => !run.towers.some((t) => t.pad === i),
+      (i) => !run.towers.some((t) => t.pad === i && t.hp > 0),
     );
     if (!run.pending.length || !free.includes(bridge.previewPad ?? -1)) bridge.previewPad = null;
-    html += `<h2>Build your line.</h2><p class="muted small">Every numbered pad can reach the route. Select a tower, then hover over a pad or use the selector to preview its coverage.</p><div class="mini-stat"><span>Ready to place</span><strong>${run.pending.length}</strong></div><div class="tower-inventory">${run.pending.length ? run.pending.map((t) => `<button id="tower-${t.uid}" data-tower="${t.uid}" class="tower-option ${selected === t.uid ? "active" : ""}" aria-pressed="${selected === t.uid}">${mark(t.category)}<span><b>${esc(control(t.controlId).name)}</b><small>${t.controlId} · ${stars(t.level)} · ${t.category}</small></span></button>`).join("") : '<div class="success-note">✓ All earned towers are deployed.</div>'}</div>${run.pending.length ? `<label class="field-label" for="pad-select">Place using keyboard</label><div class="pad-entry"><select id="pad-select" aria-label="Choose an empty tower pad">${free.map((i) => `<option value="${i}" ${bridge.previewPad === i ? "selected" : ""}>Pad ${String(i + 1).padStart(2, "0")}</option>`).join("")}</select><button class="secondary" id="place-pad">Place</button></div><button class="secondary full" id="auto-place">Auto-place remaining towers</button>` : ""}<button class="primary full" id="start-wave" ${run.pending.length ? "disabled" : ""}>Start rehearsal wave →</button><p class="help-text">Rehearsal ${run.phase + 1} · ${waveSpec(run.phase, 0).count} enemies · gentle difficulty</p><hr><p class="eyebrow">POSITION MATTERS</p><p class="small muted">The highlighted path shows where this tower can fire. Bends keep threats in range longer. Detect towers mark threats for extra damage from nearby towers.</p>`;
+    html += `<h2>Build your line.</h2><p class="muted small">Every numbered pad can reach the route. Select a tower, then hover over a pad or use the selector to preview its coverage.</p><div class="mini-stat"><span>Ready to place</span><strong>${run.pending.length}</strong></div><div class="tower-inventory">${run.pending.length ? run.pending.map((t) => `<button id="tower-${t.uid}" data-tower="${t.uid}" class="tower-option ${selected === t.uid ? "active" : ""}" aria-pressed="${selected === t.uid}">${mark(t.category)}<span><b>${esc(control(t.controlId).name)}</b><small>${t.controlId} · ${stars(t.level)} · ${t.hp} HP · ${t.category}</small></span></button>`).join("") : '<div class="success-note">✓ All earned towers are deployed.</div>'}</div>${run.pending.length ? `<label class="field-label" for="pad-select">Place using keyboard</label><div class="pad-entry"><select id="pad-select" aria-label="Choose an empty tower pad">${free.map((i) => `<option value="${i}" ${bridge.previewPad === i ? "selected" : ""}>Pad ${String(i + 1).padStart(2, "0")}</option>`).join("")}</select><button class="secondary" id="place-pad">Place</button></div><button class="secondary full" id="auto-place">Auto-place remaining towers</button>` : ""}<button class="primary full" id="start-wave" ${run.pending.length ? "disabled" : ""}>Start rehearsal wave →</button><p class="help-text">Rehearsal ${run.phase + 1} · ${waveSpec(run.phase, 0).count} enemies · gentle difficulty</p><hr><p class="eyebrow">POSITION MATTERS</p><p class="small muted">The highlighted path shows where this tower can fire. Bends keep threats in range longer. Enemies can shoot back; tower HP carries into later waves.</p>`;
   }
   if (run.stage === "battle")
-    html += `<h2>${run.survivalWave ? "Hold the line." : "Defence in action."}</h2><p class="muted small">${run.survivalWave ? "Incoming waves grow in health, speed and numbers. Runners join at wave 2; armoured threats at wave 3." : "Watch how your towers work together. Completing this wave advances the attack scenario."}</p><div class="battle-number"><span id="kill-counter">0</span><small>THREATS STOPPED</small></div><div class="mini-stat"><span>Active threats</span><strong id="enemies-live">0</strong></div><div class="budget-track"><div id="wave-progress" style="width:0%"></div></div><p class="small muted" id="wave-spawned">Preparing wave…</p><hr><p class="eyebrow">COMBAT ROLES</p><div class="role-note">${mark("Prevent")}<span><b>Prevent</b>Fast, focused damage.</span></div><div class="role-note">${mark("Detect")}<span><b>Detect</b>Slows and marks threats.</span></div><div class="role-note">${mark("Respond")}<span><b>Respond</b>Hits nearby groups.</span></div><p class="fine-print">These effects are a game metaphor. See the control cards for the real capabilities and limitations.</p>`;
+    html += `<h2>${run.survivalWave ? `Wave ${run.survivalWave}` : "Defence in action."}</h2><p class="muted small">${run.survivalWave ? "Waves begin automatically. Each one you clear earns 100 points; threats grow stronger as you continue." : "Enemies can shoot back. Towers keep any damage they take when the next phase begins."}</p>${run.survivalWave ? `<div class="mini-stat"><span>Waves cleared</span><strong>${run.cleared}</strong></div><div class="mini-stat"><span>Wave points</span><strong>${run.waveScore}</strong></div>` : ""}<div class="battle-number"><span id="kill-counter">0</span><small>THREATS STOPPED</small></div><div class="mini-stat"><span>Active threats</span><strong id="enemies-live">0</strong></div><div class="mini-stat"><span>Towers standing</span><strong id="towers-live">${run.towers.filter((t) => t.pad !== null && t.hp > 0).length}</strong></div><div class="budget-track"><div id="wave-progress" style="width:0%"></div></div><p class="small muted" id="wave-spawned">Preparing wave…</p><hr><p class="eyebrow">COMBAT ROLES</p><div class="role-note">${mark("Prevent")}<span><b>Prevent</b>Fast, focused damage.</span></div><div class="role-note">${mark("Detect")}<span><b>Detect</b>Slows and marks threats.</span></div><div class="role-note">${mark("Respond")}<span><b>Respond</b>Hits nearby groups.</span></div><p class="fine-print">These effects are a game metaphor. See the control cards for the real capabilities and limitations.</p>`;
   if (run.stage === "question")
-    html += `<h2>The human layer.</h2><p class="muted">Answer five questions after matching, then place your earned towers. Each answer is followed by feedback.</p><div class="quiz-benefit"><strong>+3</strong><span>behaviour points for a secure answer</span></div><div class="quiz-benefit"><strong>+5</strong><span>starting integrity in survival mode</span></div><p class="small muted">A correct answer also repairs 10 integrity now. Wrong or unanswered questions earn no bonus.</p><hr><p class="eyebrow">YOUR MATCHES</p><div class="mini-stat"><span>Towers earned</span><strong>${run.pending.length}</strong></div><div class="mini-stat"><span>Network integrity</span><strong>${Math.round(run.health)}%</strong></div><p class="fine-print">Facilitators can pause the question timer while discussing or reading aloud.</p>`;
-  if (run.stage === "intermission")
-    html += `<h2>${run.survivalWave ? "Wave secured." : "The rehearsal is over."}</h2><p class="muted">${run.survivalWave ? "Your towers held. Take a breath, then send the next wave." : "All four phases are complete. Your network restores to full integrity, plus the bonuses you earned. Now find its limit."}</p><div class="battle-number"><span>${run.survivalWave ? run.cleared : run.towers.length}</span><small>${run.survivalWave ? "WAVES SURVIVED" : "TOWERS DEPLOYED"}</small></div>${!run.survivalWave ? `<div class="success-note">Starting integrity: ${100 + run.correctAnswers * 5}%</div>` : `<div class="mini-stat"><span>Next wave</span><strong>${waveSpec(3, run.survivalWave + 1).count} enemies</strong></div>`}<button class="primary full" id="start-wave">${run.survivalWave ? "Launch wave " + (run.survivalWave + 1) : "Begin survival"} →</button>${run.survivalWave ? '<button class="secondary full" id="bank-run">Finish run & debrief</button>' : ""}<hr><p class="small muted">No more cards or towers. Use your existing defence. Survival progress is recorded separately from the cyber learning score.</p>`;
+    html += `<h2>The human layer.</h2><p class="muted">Answer five questions after matching, then place your earned towers. Each answer is followed by feedback.</p><div class="quiz-benefit"><strong>+50</strong><span>points for each correct answer</span></div><div class="quiz-benefit"><strong>+5</strong><span>starting integrity in survival mode</span></div><p class="small muted">A correct answer also repairs 10 integrity now. Wrong or unanswered questions earn no bonus.</p><hr><p class="eyebrow">YOUR MATCHES</p><div class="mini-stat"><span>Towers earned</span><strong>${run.pending.length}</strong></div><div class="mini-stat"><span>Network integrity</span><strong>${Math.round(run.health)}%</strong></div><p class="fine-print">Facilitators can pause the question timer while discussing or reading aloud.</p>`;
   if (run.stage === "gameover")
     html += `<h2>What would you change?</h2><p class="muted">Review your defence, then try a different approach.</p><div class="rule-block"><span>PREVENT TOWERS</span><b>${run.towers.filter((t) => t.category === "Prevent").length}</b><span>DETECT TOWERS</span><b>${run.towers.filter((t) => t.category === "Detect").length}</b><span>RESPOND TOWERS</span><b>${run.towers.filter((t) => t.category === "Respond").length}</b></div><p class="small muted">${run.chosen.includes("R2") ? "Your 24/7 response team was available during the overnight attack." : "Much of the story happens overnight. Compare office-hours response with a 24/7 team."}</p><p class="small muted">${run.chosen.includes("R4") ? "Backup restores helped in the encryption phase. Recovery matters even when the attacker gets in." : "Consider backup restores: the final phase is about recovering after files are encrypted."}</p><button class="primary full" id="play-again">Try another loadout ↗</button>`;
   html += `<button class="secondary full" id="view-loadout">View loadout</button>`;
@@ -279,7 +284,7 @@ function quizOverlay() {
     )
     .join(
       "",
-    )}</div>${answer ? `<div class="answer-explanation ${answer.correct ? "secure" : ""}" role="status"><b>${answer.correct ? "Secure response. +3 points and +5 survival integrity." : answer.answer === null ? "Time is up. Correct answer: " + q.correct + "." : "Correct answer: " + q.correct + ". No bonus this time."}</b><p>${esc(q.explanation)}</p></div><button class="primary full" id="${run.checkpointComplete ? "finish-questions" : "next-question"}">${run.checkpointComplete ? "Questions complete · place towers" : "Next question"} →</button>` : '<p class="fine-print">30 seconds per question. Complete all five before tower placement. Pause to read or discuss as a group.</p>'}</section>`;
+    )}</div>${answer ? `<div class="answer-explanation ${answer.correct ? "secure" : ""}" role="status"><b>${answer.correct ? "Secure response. +50 points and +5 survival integrity." : answer.answer === null ? "Time is up. Correct answer: " + q.correct + "." : "Correct answer: " + q.correct + ". No bonus this time."}</b><p>${esc(q.explanation)}</p></div><button class="primary full" id="${run.checkpointComplete ? "finish-questions" : "next-question"}">${run.checkpointComplete ? "Questions complete · place towers" : "Next question"} →</button>` : '<p class="fine-print">30 seconds per question. Complete all five before tower placement. Pause to read or discuss as a group.</p>'}</section>`;
 }
 function resultsOverlay() {
   if (run.cleared > best) {
@@ -291,7 +296,7 @@ function resultsOverlay() {
     }
     $("best-wave").textContent = String(best);
   }
-  return `<section class="results-screen"><p class="eyebrow">${run.health <= 0 ? "NETWORK OVERWHELMED" : "RUN COMPLETE"}</p><div class="result-emblem">${run.cleared}</div><h2>Survival waves cleared</h2><p class="muted">${run.health <= 0 ? "Your defence fell during wave " + run.survivalWave + "." : "You banked your run with " + Math.round(run.health) + "% integrity remaining."} Every run is a chance to learn.</p><p class="small muted">${run.correctAnswers}/${run.phaseQuestions.flat().length} secure answers · ${run.towers.length} towers · ${money(run.spent)} invested</p><button class="primary" id="result-restart">Build your next defence →</button></section>`;
+  return `<section class="results-screen"><p class="eyebrow">NETWORK OVERWHELMED</p><h2>Final score</h2><strong class="final-score">${run.finalScore}</strong><div class="score-breakdown"><span>Card matches <b>${run.controlScore}</b></span><span>Correct answers <b>${run.behaviour}</b></span><span>${run.cleared} waves cleared <b>${run.waveScore}</b></span></div><p class="muted">Your defence fell during wave ${run.survivalWave}.</p><p class="small muted">${run.correctAnswers}/${run.phaseQuestions.flat().length} correct answers · ${run.towers.length} towers earned · ${money(run.spent)} invested</p><button class="primary" id="result-restart">Build your next defence →</button></section>`;
 }
 let previousStage = "";
 function render() {
@@ -306,14 +311,14 @@ function render() {
   $("eyebrow").textContent = eyebrow;
   $("heading").textContent = heading;
   $("subtitle").textContent = subtitle;
-  const hasScenario = !shop && run.stage !== "gameover" && run.stage !== "intermission" && run.survivalWave === 0;
+  const hasScenario = !shop && run.stage !== "gameover" && run.survivalWave === 0;
   $("scenario-label").hidden = !hasScenario;
   $("scenario-summary").classList.toggle("has-scenario", hasScenario);
   renderTimeline();
   const matching = run.stage === "match" || run.stage === "story";
   $("matching-view").hidden = !matching;
   $("battle-layout").hidden = matching;
-  $("score-strip").innerHTML = `<span>Control points <b>${run.controlScore}</b></span><span>Behaviour points <b>${run.behaviour}</b></span><span>Learning total <b>${run.controlScore + run.behaviour}</b></span>`;
+  $("score-strip").innerHTML = `<span>Card matches <b>${run.controlScore}</b></span><span>Quiz points <b>${run.behaviour}</b></span>${run.survivalWave ? `<span>Waves cleared <b>${run.cleared}</b></span>` : ""}`;
   bridge.run = run;
   if (showLoadout) renderShop(!shop);
   else if (matching) {
@@ -389,6 +394,7 @@ function updateBattle(b: Battle) {
   if ($("kill-counter")) {
     $("kill-counter").textContent = String(b.kills);
     $("enemies-live").textContent = String(b.enemies.length);
+    $("towers-live").textContent = String(run.towers.filter((t) => t.pad !== null && t.hp > 0).length);
     $("wave-progress").style.width =
       `${((b.kills + b.leaks) / b.spec.count) * 100}%`;
     $("wave-spawned").textContent =
@@ -406,6 +412,7 @@ function restart() {
   draggingCard = null;
   matchFeedback = "";
   viewingLoadout = false;
+  pausedBeforeLoadout = false;
   $<HTMLDialogElement>("story-dialog").close();
   bridge.selected = null;
   bridge.previewPad = null;
@@ -475,10 +482,15 @@ $("app").addEventListener("click", (event) => {
       break;
     case "view-loadout":
       viewingLoadout = true;
+      if (run.stage === "battle") {
+        pausedBeforeLoadout = bridge.paused;
+        bridge.paused = true;
+      }
       render();
       break;
     case "return-mission":
       viewingLoadout = false;
+      if (run.stage === "battle") bridge.paused = pausedBeforeLoadout;
       render();
       break;
     case "finish-matching":
@@ -515,10 +527,6 @@ $("app").addEventListener("click", (event) => {
       break;
     case "finish-questions":
       attempt(() => { run.finishQuestions(); });
-      break;
-    case "bank-run":
-      run.stage = "gameover";
-      render();
       break;
     case "play-again":
     case "result-restart":

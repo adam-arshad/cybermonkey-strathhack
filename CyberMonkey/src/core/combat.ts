@@ -8,12 +8,17 @@ export interface Enemy extends Point {
   speed: number;
   slow: number;
   marked: number;
+  fireCooldown: number;
   kind: "packet" | "runner" | "armoured";
 }
 export interface Shot {
   from: Point;
   to: Point;
   category: Category;
+}
+export interface EnemyShot {
+  from: Point;
+  to: Point;
 }
 export function waveSpec(phase: number, survival: number) {
   if (survival === 0)
@@ -44,6 +49,7 @@ export class Battle {
   elapsed = 0;
   done = false;
   shots: Shot[] = [];
+  enemyShots: EnemyShot[] = [];
   cooldowns = new Map<string, number>();
   spec: ReturnType<typeof waveSpec>;
   survival: number;
@@ -53,13 +59,15 @@ export class Battle {
     phase: number,
     survival: number,
   ) {
-    this.towers = towers.filter((t) => t.pad !== null).map((t) => ({ ...t }));
+    // Towers retain damage across phases and survival waves.
+    this.towers = towers.filter((t) => t.pad !== null && t.hp > 0);
     this.health = health;
     this.survival = survival;
     this.spec = waveSpec(phase, survival);
   }
   step(dt: number) {
     this.shots = [];
+    this.enemyShots = [];
     if (this.done) return;
     const step = Math.min(Math.max(dt, 0), 0.05);
     this.elapsed += step;
@@ -86,6 +94,7 @@ export class Battle {
           (kind === "runner" ? 1.6 : kind === "armoured" ? 0.7 : 1),
         slow: 0,
         marked: 0,
+        fireCooldown: 0,
         kind,
         ...pointOnRoute(0),
       });
@@ -98,6 +107,7 @@ export class Battle {
       Object.assign(e, pointOnRoute(e.progress));
     }
     for (const t of this.towers) {
+      if (t.hp <= 0) continue;
       const cd = (this.cooldowns.get(t.uid) ?? 0) - step;
       this.cooldowns.set(t.uid, cd);
       if (cd > 0) continue;
@@ -125,6 +135,21 @@ export class Battle {
           if (distance(e, target) < 65)
             e.hp -= t.level * 3 * (e.marked > 0 ? 1.3 : 1);
       } else target.hp -= t.level * 3.5 * (target.marked > 0 ? 1.3 : 1);
+    }
+    for (const e of this.enemies) {
+      if (e.hp <= 0 || e.progress >= ROUTE_LENGTH) continue;
+      e.fireCooldown -= step;
+      if (e.fireCooldown > 0) continue;
+      const target = this.towers
+        .filter((t) => t.hp > 0 && distance(e, PADS[t.pad!]) <= 105)
+        .sort((a, b) => distance(e, PADS[a.pad!]) - distance(e, PADS[b.pad!]))[0];
+      if (!target) continue;
+      target.hp = Math.max(0, target.hp - 1);
+      e.fireCooldown = 1.8;
+      this.enemyShots.push({
+        from: { x: e.x, y: e.y },
+        to: PADS[target.pad!],
+      });
     }
     this.enemies = this.enemies.filter((e) => {
       if (e.hp <= 0) {

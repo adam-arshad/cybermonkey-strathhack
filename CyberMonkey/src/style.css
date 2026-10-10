@@ -1067,6 +1067,32 @@ canvas {
 .results-screen h2 {
   font-size: 30px;
 }
+.final-score {
+  display: block;
+  color: var(--mint);
+  font-size: clamp(52px, 7vw, 78px);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.score-breakdown {
+  max-width: 350px;
+  margin: 24px auto;
+  text-align: left;
+}
+.score-breakdown span {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 13px;
+}
+.score-breakdown b {
+  color: #24352d;
+  font-variant-numeric: tabular-nums;
+}
 .results-screen > .muted {
   max-width: 420px;
   margin: 12px auto 25px;

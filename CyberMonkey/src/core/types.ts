@@ -51,6 +51,8 @@ export interface Tower {
   controlId: string;
   category: Category;
   level: number;
+  hp: number;
+  maxHp: number;
   pad: number | null;
 }
 export interface Point {

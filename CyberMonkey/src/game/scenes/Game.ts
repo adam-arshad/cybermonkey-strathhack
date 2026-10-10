@@ -210,7 +210,7 @@ export class DefenseScene extends Scene {
     this.towersLayer.removeAll(true);
     const run = this.bridge.run;
     PADS.forEach((_p, i) => {
-      const occupied = run.towers.some((t) => t.pad === i);
+      const occupied = run.towers.some((t) => t.pad === i && t.hp > 0);
       const available = !occupied && run.stage === "deploy";
       const pad = this.padLayer.list[i * 2] as GameObjects.Shape;
       pad.setActive(available).setVisible(available);
@@ -220,7 +220,7 @@ export class DefenseScene extends Scene {
       );
     });
     for (const t of run.towers) {
-      if (t.pad === null) continue;
+      if (t.pad === null || t.hp <= 0) continue;
       const p = PADS[t.pad],
         colour = colours[t.category];
       const base = this.add.graphics();
@@ -279,7 +279,7 @@ export class DefenseScene extends Scene {
     if (!this.dynamic) return;
     const run = this.bridge.run;
     const key =
-      run.stage + run.towers.map((t) => `${t.uid}:${t.pad}`).join("|");
+      run.stage + run.towers.map((t) => `${t.uid}:${t.pad}:${t.hp > 0}`).join("|");
     if (key !== this.towerKey) {
       this.towerKey = key;
       this.scale.refresh();
@@ -287,13 +287,21 @@ export class DefenseScene extends Scene {
     }
     const g = this.dynamic;
     g.clear();
+    for (const t of run.towers) {
+      if (t.pad === null || t.hp <= 0) continue;
+      const p = PADS[t.pad];
+      g.fillStyle(0x09242b, 0.95);
+      g.fillRect(p.x - 19, p.y - 32, 38, 5);
+      g.fillStyle(colours[t.category], 0.95);
+      g.fillRect(p.x - 18, p.y - 31, 36 * (t.hp / t.maxHp), 3);
+    }
     const previewPad = this.hover >= 0 ? this.hover : this.bridge.previewPad;
     if (run.stage === "deploy" && previewPad !== null && previewPad >= 0) {
       const t = run.towers.find(
           (t) => t.uid === this.bridge.selected && t.pad === null,
         ),
         p = PADS[previewPad];
-      if (t && p && !run.towers.some((tower) => tower.pad === previewPad)) {
+      if (t && p && !run.towers.some((tower) => tower.pad === previewPad && tower.hp > 0)) {
         const range = towerRange(t);
         g.fillStyle(colours[t.category], 0.1);
         g.fillCircle(p.x, p.y, range);
@@ -322,6 +330,11 @@ export class DefenseScene extends Scene {
           ...b.shots.map((s) => ({
             ...s,
             colour: colours[s.category],
+            life: 0.15,
+          })),
+          ...b.enemyShots.map((s) => ({
+            ...s,
+            colour: 0xff766e,
             life: 0.15,
           })),
         );
