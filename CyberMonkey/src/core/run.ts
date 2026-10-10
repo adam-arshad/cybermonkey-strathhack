@@ -1,9 +1,10 @@
 import { scoreSelection } from "./controls.mjs";
 import { PADS, distanceToRoute } from "./map.ts";
+import { MATCH_BOARDS, matchPoints } from "./matching.ts";
+import { selectPhaseQuestions } from "./questions.ts";
 import type {
   Category,
   Scenario,
-  ScoreResult,
   Tower,
   Question,
 } from "./types.ts";
@@ -17,6 +18,7 @@ export const CATEGORIES: Category[] = ["Prevent", "Detect", "Respond"];
 export const STARTER = ["P5", "P6", "P7", "D1", "R1", "R2", "R4"];
 export type Stage =
   | "shop"
+  | "story"
   | "match"
   | "deploy"
   | "battle"
@@ -24,25 +26,21 @@ export type Stage =
   | "intermission"
   | "gameover";
 
-// Fixed phase-specific reveals make different loadouts comparable. Ties retain pack order.
+// Explicit rankings avoid silently changing the board when source scores tie.
 export function offersFor(data: Scenario, phase: number): string[] {
-  return CATEGORIES.flatMap((category) =>
-    data.controls
-      .filter((c) => c.category === category)
-      .sort(
-        (a, b) =>
-          data.phases[phase].scores[b.id] - data.phases[phase].scores[a.id],
-      )
-      .slice(0, 3)
-      .map((c) => c.id),
-  );
+  const board = MATCH_BOARDS[phase];
+  if (!board) throw Error("Unknown matching phase.");
+  const ids = board.flat();
+  if (ids.some((id, i) => !data.controls.some(
+    (c) => c.id === id && c.category === CATEGORIES[Math.floor(i / 3)],
+  ))) throw Error("The matching board does not match this control deck.");
+  return ids;
 }
 export class Run {
   data: Scenario;
   stage: Stage = "shop";
   chosen: string[] = [];
   phase = 0;
-  result: ScoreResult | null = null;
   towers: Tower[] = [];
   claimed: string[] = [];
   health = 100;
@@ -53,8 +51,27 @@ export class Run {
   cleared = 0;
   lastWaveKills = 0;
   lastWaveLeaks = 0;
-  constructor(data: Scenario) {
+  questionIndex = 0;
+  readonly phaseQuestions: Question[][];
+  constructor(data: Scenario, questions: Question[], random = Math.random) {
     this.data = data;
+    this.phaseQuestions = selectPhaseQuestions(questions, data.phases.map((phase) => phase.id), random);
+  }
+  get currentQuestion() {
+    return this.phaseQuestions[this.phase][this.questionIndex];
+  }
+  get checkpointQuestions() {
+    return this.phaseQuestions[this.phase];
+  }
+  get checkpointComplete() {
+    return this.checkpointQuestions.every((q) => this.answers.some((answer) => answer.id === q.id));
+  }
+  nextQuestion() {
+    if (this.stage !== "question" ||
+      !this.answers.some((answer) => answer.id === this.currentQuestion.id) ||
+      this.questionIndex >= this.checkpointQuestions.length - 1) return false;
+    this.questionIndex++;
+    return true;
   }
   get spent() {
     return this.data.controls
@@ -62,20 +79,19 @@ export class Run {
       .reduce((s, c) => s + c.cost, 0);
   }
   get controlScore() {
-    return (
-      this.result?.phases
-        .slice(0, this.phase + 1)
-        .reduce((s, p) => s + p.score, 0) ?? 0
-    );
+    return this.towers.reduce((sum, tower) => sum + tower.level, 0);
+  }
+  get phaseScore() {
+    return this.claimed.reduce((sum, id) => sum + matchPoints(this.phase, id), 0);
+  }
+  get deck() {
+    return this.chosen.filter((id) => !this.claimed.includes(id));
   }
   get offers() {
     return offersFor(this.data, this.phase);
   }
   get eligible() {
-    return this.offers.filter(
-      (id) =>
-        this.chosen.includes(id) && this.data.phases[this.phase].scores[id] > 0,
-    );
+    return this.offers.filter((id) => this.chosen.includes(id));
   }
   get pending() {
     return this.towers.filter((t) => t.pad === null);
@@ -95,12 +111,18 @@ export class Run {
   }
   lock() {
     if (this.stage !== "shop") return;
-    this.result = scoreSelection(this.data, this.chosen);
+    // Retain purchase validation; gameplay rewards come only from placed matches.
+    scoreSelection(this.data, this.chosen);
+    this.stage = "story";
+  }
+  beginMatching() {
+    if (this.stage !== "story") return;
     this.stage = "match";
   }
-  claim(id: string) {
+  claim(id: string, targetId: string) {
     if (
       this.stage !== "match" ||
+      id !== targetId ||
       !this.eligible.includes(id) ||
       this.claimed.includes(id)
     )
@@ -110,7 +132,7 @@ export class Run {
       uid: `${this.phase}-${id}`,
       controlId: id,
       category: c.category,
-      level: this.data.phases[this.phase].scores[id],
+      level: matchPoints(this.phase, id),
       pad: null,
     });
     this.claimed.push(id);
@@ -119,8 +141,8 @@ export class Run {
   finishMatching() {
     if (this.stage !== "match") return;
     if (this.eligible.some((id) => !this.claimed.includes(id)))
-      throw Error("Collect your matching cards first.");
-    this.stage = "deploy";
+      throw Error("Place every matching card from your deck first.");
+    this.stage = "question";
   }
   place(uid: string, pad: number) {
     if (
@@ -150,7 +172,7 @@ export class Run {
   startBattle() {
     if (this.stage === "deploy") {
       if (this.pending.length)
-        throw Error("Place all earned towers before starting.");
+        throw Error("Place all earned towers before starting the wave.");
     } else if (this.stage === "intermission") {
       if (this.survivalWave === 0)
         this.health = 100 + this.correctAnswers * CONFIG.shieldBonus;
@@ -170,11 +192,18 @@ export class Run {
         this.cleared = this.survivalWave;
         this.stage = "intermission";
       }
-    } else this.stage = "question";
+    } else if (this.phase < 3) {
+      this.phase++;
+      this.questionIndex = 0;
+      this.claimed = [];
+      this.stage = "story";
+    } else this.stage = "intermission";
   }
-  answer(question: Question, answer: string | null) {
+  answer(answer: string | null) {
+    const question = this.currentQuestion;
     if (
       this.stage !== "question" ||
+      (answer !== null && !Object.hasOwn(question.options, answer)) ||
       this.answers.some((a) => a.id === question.id)
     )
       return false;
@@ -187,13 +216,9 @@ export class Run {
     }
     return true;
   }
-  nextPhase() {
-    if (this.stage !== "question" || this.answers.length !== this.phase + 1)
-      return;
-    if (this.phase < 3) {
-      this.phase++;
-      this.claimed = [];
-      this.stage = "match";
-    } else this.stage = "intermission";
+  finishQuestions() {
+    if (this.stage !== "question" || !this.checkpointComplete) return false;
+    this.stage = "deploy";
+    return true;
   }
 }

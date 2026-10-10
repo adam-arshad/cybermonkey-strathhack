@@ -22,19 +22,27 @@ npm test            # Core rules and complete simulated playthrough
 ## Play
 
 1. Buy control cards using the £3m budget. Include Prevent, Detect and Respond. “Use a balanced starter loadout” supplies a valid demonstration selection.
-2. Lock your choice. Read each of four attack phases and match owned cards in the three sets of three revealed cards. “Collect all matches” is available.
-3. A matched control with 1, 2 or 3 phase points grants a new tower of that level. Zero points grants no tower. Claim each match once. Cards stay owned; the same control can earn a new tower in another phase.
-4. Select a tower and click an empty numbered pad, use the keyboard pad selector, or auto-place all remaining towers. All earned towers must be placed before starting a wave.
-5. Defend a gentle rehearsal wave. Pause and 2× speed are available. Rehearsal waves cannot end the run; integrity stays at least 1%.
-6. Answer one supplied behaviour question in 30 seconds. Facilitators can pause the timer. Correct answers grant 3 behaviour points, repair 10 rehearsal integrity (up to 100), and add 5 starting survival integrity. Wrong or timed-out answers grant no bonus. Every answer and timeout reveals the original explanation; use Continue to move on.
+2. Lock your choice. Read the story popup before each of four attack phases. Drag cards from your purchased deck into the nine named boxes, or select a card and then its box using touch or the keyboard. Availability labels show which solutions you own. “View story” reopens the current briefing.
+3. Columns award 3, 2 and 1 control points from left to right, plus a tower of the same level. Only correctly placed matches earn points. Incorrect placements return the card without penalty. Matched cards disappear until the next phase; all owned matches must be placed before continuing. A phase with no owned matches allows immediate continuation to questions.
+4. After matching, a question popup presents five questions relevant to the current phase. Questions are selected from the supplied 40-question bank: four directly linked questions where available, then related general questions. The order and A–D answer positions change each run, and a question never repeats during one run. Each question has 30 seconds; the timer can be paused. After each answer or timeout, review the original explanation and choose “Next question”. Correct answers grant 3 behaviour points, repair 10 rehearsal integrity (up to 100), and add 5 starting survival integrity. Wrong or timed-out answers grant no bonus.
+5. Once all five questions are complete, select a tower and click an empty numbered pad, use the keyboard pad selector, or auto-place all remaining towers. All earned towers must be placed before starting the wave.
+6. Defend a gentle rehearsal wave; pause and 2× speed are available. Rehearsal waves cannot end the run; integrity stays at least 1%. Completing a wave opens the next phase’s story, or prepares survival after phase four.
 7. After phase four, integrity resets to 100 plus earned bonuses. All towers remain. Launch increasingly hard survival waves until the network fails, or finish at an intermission to bank the run.
-8. Review survival waves cleared, the unchanged control score, behaviour points and combined learning score. Restart to compare another loadout. Best survival score is stored only in this browser.
+8. Review survival waves cleared, matched control points, behaviour points and combined learning score. Restart to compare another loadout. Best survival score is stored only in this browser.
 
 ## Rules and source of truth
 
-`src/data/challenge.json`, `src/data/questions.json`, and `src/core/controls.mjs` are copied from the current challenge pack. The scoring module is unchanged. The older tabletop slides contain different control IDs and prices; this build uses the current challenge data.
+`src/data/challenge.json` supplies the 22 purchasable controls, costs and descriptions. `src/data/questions.json` supplies behaviour questions. The unchanged `src/core/controls.mjs` validates purchases; its original score calculations are retained as reference data, not used for gameplay rewards.
 
-All bought controls score in all four phases, including controls that do not appear in the matching reveal. The official control score is independent of combat. Each phase reveals the three highest-scoring controls in each category (ties retain the source order), making the nine-card board deterministic. This is a game-design choice, not an original rule from the pack.
+`src/core/matching.ts` defines the active 3/2/1 boards. Phases 1–3 follow slides 5, 6 and 8 of `Defend Your Network - game and scenario.pptx`. Phase 4 is a custom board agreed for this game:
+
+| Category | 3 points | 2 points | 1 point |
+| --- | --- | --- | --- |
+| Prevent | P9 EDR | P2 Network segmentation | P5 Secure by design |
+| Detect | D6 EDR | D1 SIEM | D2 Intrusion detection and prevention |
+| Respond | R4 Backup restores | R1 Incident response plan | R2 Response team 24/7 |
+
+Points are awarded only after a correct placement, once per card per phase. Other purchases score zero. This intentionally changes gameplay scoring from the original automatic purchase totals. Behaviour points are added separately to the learning total; survival waves remain a separate result. The story popups use the scenario deck’s four-phase attack narrative.
 
 Combat is an illustrative metaphor:
 
@@ -47,7 +55,10 @@ Tower level scales damage and range. Real control names, descriptions, limitatio
 ## Code organisation
 
 - `src/core/run.ts`: authoritative run state, budget choices, matching rewards, placement, phases and quiz scoring. Game/business names are set in `CONFIG` here.
-- `src/core/controls.mjs`: supplied official control scoring engine.
+- `src/core/controls.mjs`: supplied control scoring engine, used here for purchase validation.
+- `src/core/matching.ts`: ranked boards, 3/2/1 matching rewards and phase stories.
+- `src/core/questions.ts`: random question selection by supplied phase relevance and answer shuffling.
+- `tests/questions.test.ts`: phase relevance, selection variety and all 24 answer permutations.
 - `src/core/combat.ts`: frame-rate-independent combat simulation and wave progression.
 - `src/core/map.ts`: route geometry and numbered build pads shared by simulation and drawing.
 - `src/main.ts`: HTML UI, event handlers, question timer and transitions.
@@ -59,7 +70,7 @@ The separation allows scoring and combat to be exercised without launching Phase
 
 ## MVP limits
 
-One map, one screen/player, three combat roles, fixed reveals and four selected questions. No multiplayer, tower sales, mid-run purchasing, drag-and-drop, sound, cloud saves or resume after refresh. Only the best survival record persists. Small screens are supported, but desktop is the intended play surface. The visual map can be operated via the equivalent HTML pad controls; screen-reader play of live combat is limited. The survival waves continue until defeat, with a manual launch between waves.
+One map, one screen/player, three combat roles, fixed reveals and four checkpoints of five questions, selected from the supplied bank without repeats. No multiplayer, tower sales, mid-run purchasing, sound, cloud saves or resume after refresh. Only the best survival record persists. Small screens use a deck above the board with tap-to-place controls; desktop supports dragging and keyboard selection. The visual map can be operated via the equivalent HTML pad controls; screen-reader play of live combat is limited. The survival waves continue until defeat, with a manual launch between waves.
 
 ## Credits
 
