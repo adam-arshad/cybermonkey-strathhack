@@ -1840,6 +1840,52 @@ dialog {
 dialog::backdrop {
   background: #24352d66;
 }
+.tutorial-dialog {
+  background: #fff;
+  color: #24352d;
+  border-color: #d8e2dc;
+}
+.tutorial-header,
+.tutorial-footer {
+  background: #fff;
+  border-color: #d8e2dc;
+}
+.tutorial-header h2,
+.tutorial-step h3 {
+  color: #24352d;
+}
+.tutorial-header p:not(.eyebrow),
+.tutorial-step p,
+.tutorial-footer .fine-print {
+  color: #52645a;
+}
+.tutorial-grid {
+  background: #d8e2dc;
+}
+.tutorial-step {
+  background: #fff;
+}
+.tutorial-step:nth-child(odd) {
+  background: #f5f8f5;
+}
+.tutorial-step:nth-child(3) {
+  background: #fff;
+}
+.tutorial-step:nth-child(4) {
+  background: #f5f8f5;
+}
+.tutorial-number {
+  color: #28734e;
+}
+.dialog-close {
+  border-color: #cbd8d0;
+  color: #52645a;
+}
+.dialog-close:hover {
+  border-color: #28734e;
+  color: #28734e;
+  background: #edf6ef;
+}
 button:focus-visible,
 a:focus-visible,
 summary:focus-visible,
