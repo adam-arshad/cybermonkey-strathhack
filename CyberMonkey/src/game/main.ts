@@ -1,25 +1,9 @@
-import { Game as MainGame } from './scenes/Game';
-import { AUTO, Game, Scale,Types } from 'phaser';
-
-// Find out more information about the Game Config at:
-// https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
-const config: Types.Core.GameConfig = {
-    type: AUTO,
-    width: 1024,
-    height: 768,
-    parent: 'game-container',
-    backgroundColor: '#028af8',
-    scale: {
-        mode: Scale.FIT,
-        autoCenter: Scale.CENTER_BOTH
-    },
-    scene: [
-        MainGame
-    ]
-};
-
-const StartGame = (parent: string) => {
-    return new Game({ ...config, parent });
+import { Game, AUTO, Scale } from 'phaser';
+import { DefenseScene, type Bridge } from './scenes/Game';
+export function startGame(bridge:Bridge) {
+  const scene=new DefenseScene(bridge);
+  const game=new Game({type:AUTO,parent:'game-container',width:1000,height:620,backgroundColor:'#173637',
+    scale:{mode:Scale.FIT,autoCenter:Scale.CENTER_BOTH},render:{antialias:true},scene:[scene],
+    audio:{noAudio:true},banner:false});
+  return {game,scene};
 }
-
-export default StartGame;

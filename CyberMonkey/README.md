@@ -1,158 +1,66 @@
-# Phaser Vite TypeScript Template
+# CyberMonkey
 
-This is a Phaser project template that uses Vite for bundling. It supports hot-reloading for quick development workflow, includes TypeScript support and scripts to generate production-ready builds.
+A local, single-player cyber-awareness tower defence game for the StrathHack ScottishPower challenge. Phaser renders the map and animation; TypeScript owns the game rules and accessible HTML presents cards, questions and results. No backend, account, external fonts, online AI calls or new package dependencies are required at runtime.
 
-**[This Template is also available as a JavaScript version.](https://github.com/phaserjs/template-vite)**
+## Run
 
-### Versions
+Use Node.js 22.18 or later (Node 24 is recommended for the TypeScript tests).
 
-This template has been updated for:
-
-- [Phaser 4](https://github.com/phaserjs/phaser)
-- [Vite 6.3.1](https://github.com/vitejs/vite)
-- [TypeScript 5.7.2](https://github.com/microsoft/TypeScript)
-
-![screenshot](screenshot.png)
-
-## Requirements
-
-[Node.js](https://nodejs.org) is required to install dependencies and run scripts via `npm`.
-
-## Available Commands
-
-| Command | Description |
-|---------|-------------|
-| `npm install` | Install project dependencies |
-| `npm run dev` | Launch a development web server |
-| `npm run build` | Create a production build in the `dist` folder |
-| `npm run dev-nolog` | Launch a development web server without sending anonymous data (see "About log.js" below) |
-| `npm run build-nolog` | Create a production build in the `dist` folder without sending anonymous data (see "About log.js" below) |
-
-## Writing Code
-
-After cloning the repo, run `npm install` from your project directory. Then, you can start the local development server by running `npm run dev`.
-
-The local development server runs on `http://localhost:8080` by default. Please see the Vite documentation if you wish to change this, or add SSL support.
-
-Once the server is running you can edit any of the files in the `src` folder. Vite will automatically recompile your code and then reload the browser.
-
-## Template Project Structure
-
-We have provided a default project structure to get you started. This is as follows:
-
-## Template Project Structure
-
-We have provided a default project structure to get you started:
-
-| Path                         | Description                                                |
-|------------------------------|------------------------------------------------------------|
-| `index.html`                 | A basic HTML page to contain the game.                     |
-| `public/assets`              | Game sprites, audio, etc. Served directly at runtime.      |
-| `public/style.css`           | Global layout styles.                                      |
-| `src/main.ts`                | Application bootstrap.                                     |
-| `src/game`                   | Folder containing the game code.                           |
-| `src/game/main.ts`           | Game entry point: configures and starts the game.          |
-| `src/game/scenes`            | Folder with all Phaser game scenes.                        | 
-
-
-## Handling Assets
-
-Vite supports loading assets via JavaScript module `import` statements.
-
-This template provides support for both embedding assets and also loading them from a static folder. To embed an asset, you can import it at the top of the JavaScript file you are using it in:
-
-```js
-import logoImg from './assets/logo.png'
+```sh
+npm install
+npm run dev
 ```
 
-To load static files such as audio files, videos, etc place them into the `public/assets` folder. Then you can use this path in the Loader calls within Phaser:
+Open the address Vite prints, normally http://127.0.0.1:8080. If that port is occupied, Vite selects another. The existing project dependencies are reused; Phaser is already installed. If npm blocks lifecycle scripts, review the named package before approving it.
 
-```js
-preload ()
-{
-    //  This is an example of an imported bundled image.
-    //  Remember to import it at the top of this file
-    this.load.image('logo', logoImg);
-
-    //  This is an example of loading a static image
-    //  from the public/assets folder:
-    this.load.image('background', 'assets/bg.png');
-}
+```sh
+npm run build       # TypeScript check, then production bundle in dist/
+npm run preview     # Serve that production bundle locally
+npm test            # Core rules and complete simulated playthrough
 ```
 
-When you issue the `npm run build` command, all static assets are automatically copied to the `dist/assets` folder.
+## Play
 
-## Deploying to Production
+1. Buy control cards using the £3m budget. Include Prevent, Detect and Respond. “Use a balanced starter loadout” supplies a valid demonstration selection.
+2. Lock your choice. Read each of four attack phases and match owned cards in the three sets of three revealed cards. “Collect all matches” is available.
+3. A matched control with 1, 2 or 3 phase points grants a new tower of that level. Zero points grants no tower. Claim each match once. Cards stay owned; the same control can earn a new tower in another phase.
+4. Select a tower and click an empty numbered pad, use the keyboard pad selector, or auto-place all remaining towers. All earned towers must be placed before starting a wave.
+5. Defend a gentle rehearsal wave. Pause and 2× speed are available. Rehearsal waves cannot end the run; integrity stays at least 1%.
+6. Answer one supplied behaviour question in 30 seconds. Facilitators can pause the timer. Correct answers grant 3 behaviour points, repair 10 rehearsal integrity (up to 100), and add 5 starting survival integrity. Wrong or timed-out answers grant no bonus. Every answer and timeout reveals the original explanation; use Continue to move on.
+7. After phase four, integrity resets to 100 plus earned bonuses. All towers remain. Launch increasingly hard survival waves until the network fails, or finish at an intermission to bank the run.
+8. Review survival waves cleared, the unchanged control score, behaviour points and combined learning score. Restart to compare another loadout. Best survival score is stored only in this browser.
 
-After you run the `npm run build` command, your code will be built into a single bundle and saved to the `dist` folder, along with any other assets your project imported, or stored in the public assets folder.
+## Rules and source of truth
 
-In order to deploy your game, you will need to upload *all* of the contents of the `dist` folder to a public facing web server.
+`src/data/challenge.json`, `src/data/questions.json`, and `src/core/controls.mjs` are copied from the current challenge pack. The scoring module is unchanged. The older tabletop slides contain different control IDs and prices; this build uses the current challenge data.
 
-## Customizing the Template
+All bought controls score in all four phases, including controls that do not appear in the matching reveal. The official control score is independent of combat. Each phase reveals the three highest-scoring controls in each category (ties retain the source order), making the nine-card board deterministic. This is a game-design choice, not an original rule from the pack.
 
-### Vite
+Combat is an illustrative metaphor:
 
-If you want to customize your build, such as adding plugin (i.e. for loading CSS or fonts), you can modify the `vite/config.*.mjs` file for cross-project changes, or you can modify and/or create new configuration files and target them in specific npm tasks inside of `package.json`. Please see the [Vite documentation](https://vitejs.dev/) for more information.
+- Prevent towers fire focused pulses.
+- Detect towers slow enemies and mark them for 30% extra damage.
+- Respond towers hit nearby groups.
 
-## About log.js
+Tower level scales damage and range. Real control names, descriptions, limitations and question explanations are preserved. No claim is made that these combat roles simulate the capabilities of real security systems. The setting is a fictional business network.
 
-If you inspect our node scripts you will see there is a file called `log.js`. This file makes a single silent API call to a domain called `gryzor.co`. This domain is owned by Phaser Studio Inc. The domain name is a homage to one of our favorite retro games.
+## Code organisation
 
-We send the following 3 pieces of data to this API: The name of the template being used (vue, react, etc). If the build was 'dev' or 'prod' and finally the version of Phaser being used.
+- `src/core/run.ts`: authoritative run state, budget choices, matching rewards, placement, phases and quiz scoring. Game/business names are set in `CONFIG` here.
+- `src/core/controls.mjs`: supplied official control scoring engine.
+- `src/core/combat.ts`: frame-rate-independent combat simulation and wave progression.
+- `src/core/map.ts`: route geometry and numbered build pads shared by simulation and drawing.
+- `src/main.ts`: HTML UI, event handlers, question timer and transitions.
+- `src/game/scenes/Game.ts`: Phaser map rendering, range previews, towers, enemies and shot effects. It reads the core simulation.
+- `src/style.css`: responsive UI and visible focus states.
+- `tests/rules.test.ts`: meaningful budget, reward, placement, timeout and complete four-phase/survival tests.
 
-At no point is any personal data collected or sent. We don't know about your project files, device, browser or anything else. Feel free to inspect the `log.js` file to confirm this.
+The separation allows scoring and combat to be exercised without launching Phaser. All random-looking reveals are deterministic. The combat simulation advances in bounded steps, so faster display frame rates do not make towers stronger. Hidden tabs suspend gameplay and question timing.
 
-Why do we do this? Because being open source means we have no visible metrics about which of our templates are being used. We work hard to maintain a large and diverse set of templates for Phaser developers and this is our small anonymous way to determine if that work is actually paying off, or not. In short, it helps us ensure we're building the tools for you.
+## MVP limits
 
-However, if you don't want to send any data, you can use these commands instead:
+One map, one screen/player, three combat roles, fixed reveals and four selected questions. No multiplayer, tower sales, mid-run purchasing, drag-and-drop, sound, cloud saves or resume after refresh. Only the best survival record persists. Small screens are supported, but desktop is the intended play surface. The visual map can be operated via the equivalent HTML pad controls; screen-reader play of live combat is limited. The survival waves continue until defeat, with a manual launch between waves.
 
-Dev:
+## Credits
 
-```bash
-npm run dev-nolog
-```
-
-Build:
-
-```bash
-npm run build-nolog
-```
-
-Or, to disable the log entirely, simply delete the file `log.js` and remove the call to it in the `scripts` section of `package.json`:
-
-Before:
-
-```json
-"scripts": {
-    "dev": "node log.js dev & dev-template-script",
-    "build": "node log.js build & build-template-script"
-},
-```
-
-After:
-
-```json
-"scripts": {
-    "dev": "dev-template-script",
-    "build": "build-template-script"
-},
-```
-
-Either of these will stop `log.js` from running. If you do decide to do this, please could you at least join our Discord and tell us which template you're using! Or send us a quick email. Either will be super-helpful, thank you.
-
-## Join the Phaser Community!
-
-We love to see what developers like you create with Phaser! It really motivates us to keep improving. So please join our community and show-off your work 😄
-
-**Visit:** The [Phaser website](https://phaser.io) and follow on [Phaser Twitter](https://twitter.com/phaser_)<br />
-**Play:** Some of the amazing games [#madewithphaser](https://twitter.com/search?q=%23madewithphaser&src=typed_query&f=live)<br />
-**Learn:** [API Docs](https://newdocs.phaser.io), [Support Forum](https://phaser.discourse.group/) and [StackOverflow](https://stackoverflow.com/questions/tagged/phaser-framework)<br />
-**Discord:** Join us on [Discord](https://discord.gg/phaser)<br />
-**Code:** 2000+ [Examples](https://labs.phaser.io)<br />
-**Read:** The [Phaser World](https://phaser.io/community/newsletter) Newsletter<br />
-
-Created by [Phaser Studio](mailto:support@phaser.io). Powered by coffee, anime, pixels and love.
-
-The Phaser logo and characters are &copy; 2011 - 2025 Phaser Studio Inc.
-
-All rights reserved.
+Cyber content, scenario, question bank and official score engine: supplied ScottishPower StrathHack challenge pack. Base project: Phaser Studio Vite TypeScript template (MIT). The app uses Phaser and Vite under their supplied licences. Map, towers and interface are drawn in code; no external asset downloads are required. AI assisted implementation; team members should review the rules and code before presenting.

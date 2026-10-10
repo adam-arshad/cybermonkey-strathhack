@@ -1,6 +1,6 @@
 {
-  "name": "template-vite-ts",
-  "description": "A Phaser 3 TypeScript template using Vite.",
+  "name": "cybermonkey",
+  "description": "Cyber awareness card matching and tower defence MVP",
   "version": "1.4.0",
   "repository": {
     "type": "git",
@@ -14,10 +14,11 @@
   },
   "homepage": "https://github.com/phaserjs/template-vite-ts#readme",
   "scripts": {
-    "dev": "node log.js dev & vite --config vite/config.dev.mjs",
-    "build": "node log.js build & vite build --config vite/config.prod.mjs",
-    "dev-nolog": "vite --config vite/config.dev.mjs",
-    "build-nolog": "vite build --config vite/config.prod.mjs"
+    "dev": "vite --configLoader runner",
+    "build": "tsc --noEmit && vite build --configLoader runner",
+    "preview": "vite preview --configLoader runner --host 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/*.test.ts"
   },
   "devDependencies": {
     "typescript": "~5.7.2",
@@ -26,5 +27,9 @@
   "dependencies": {
     "phaser": "4.0.0",
     "terser": "^5.39.0"
-  }
+  },
+  "allowScripts": {
+    "esbuild@0.25.2": true
+  },
+  "type": "module"
 }

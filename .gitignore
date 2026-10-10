@@ -1,3 +1,6 @@
 node_modules/
 .DS_Store
 *.log
+
+# Vite's generated dependency cache
+CyberMonkey/.cache/
