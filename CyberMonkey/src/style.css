@@ -872,17 +872,14 @@ canvas {
   margin-bottom: 0;
 }
 .placement-hint {
-  position: absolute;
-  top: 15px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: static;
+  text-align: center;
   background: #092229dd;
   border: 1px solid #6e978155;
-  box-shadow: 0 5px 20px #0019;
   border-radius: 5px;
   padding: 10px 15px;
   font-size: 11px;
-  white-space: nowrap;
+  white-space: normal;
   color: #c6e7d2;
   pointer-events: none;
 }
