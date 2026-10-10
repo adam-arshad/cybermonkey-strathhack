@@ -6,17 +6,17 @@
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-  color: #e8f0ed;
-  background: #0c171e;
+  color: #24352d;
+  background: #f5f8f5;
   font-synthesis: none;
-  --bg: #0c171e;
-  --panel: #12232b;
-  --line: #2a3b42;
-  --muted: #9aacb2;
-  --mint: #9eebbd;
-  --blue: #89beff;
-  --amber: #f8c27e;
-  color-scheme: dark;
+  --bg: #f5f8f5;
+  --panel: #ffffff;
+  --line: #d8e2dc;
+  --muted: #5e7066;
+  --mint: #28734e;
+  --blue: #286b9b;
+  --amber: #986018;
+  color-scheme: light;
   font-size: 14px;
 }
 * {
@@ -24,8 +24,7 @@
 }
 body {
   margin: 0;
-  background:
-    radial-gradient(ellipse at 75% 0%, #18323455, transparent 55%), var(--bg);
+  background: var(--bg);
 }
 button,
 a,
@@ -1377,4 +1376,291 @@ dialog > p:not(.eyebrow) {
 .map-frame:has(#overlay[hidden]) #game-container {
   min-height: 0;
   aspect-ratio: 1000/620;
+}
+
+/* Light application surfaces; the canvas keeps its illustrated game palette. */
+body {
+  color: #24352d;
+  background: #f5f8f5;
+}
+.topbar,
+.page-footer {
+  border-color: #d8e2dc;
+}
+.separator {
+  color: #829188;
+}
+.online-dot {
+  box-shadow: 0 0 0 3px #28734e1c;
+}
+.eyebrow,
+.page-footer > b,
+.text-button:hover,
+.phase-stamp,
+.match-count,
+.quiz-clock > span,
+.quiz-benefit strong,
+.battle-number > span {
+  color: #28734e;
+}
+.timeline {
+  background: #edf2ee;
+  border-color: #d8e2dc;
+}
+.timeline-step {
+  color: #65756c;
+}
+.timeline-step.current {
+  background: #e1f0e6;
+  color: #205e40;
+  box-shadow: inset 0 -2px #28734e;
+}
+.timeline-step.complete {
+  color: #426b54;
+}
+.filter {
+  border-color: #d1ddd5;
+  color: #52645a;
+}
+.filter:hover {
+  border-color: #8aaf97;
+}
+.filter.active {
+  background: #e4f1e8;
+  color: #205e40;
+  border-color: #8aaf97;
+}
+.control-card,
+.side-panel {
+  background: #fff;
+  border-color: #d8e2dc;
+  box-shadow: 0 2px 8px #203c2c0a;
+}
+.control-card:hover {
+  border-color: #a6b9ac;
+}
+.control-card.selected {
+  border-color: #6c9b79;
+  box-shadow: inset 0 0 0 1px #6c9b7940;
+}
+.category-icon {
+  color: #28734e;
+  background: #e8f3eb;
+  border-color: #d1e4d6;
+}
+.category-icon.detect {
+  color: #286b9b;
+  background: #e8f1f8;
+  border-color: #d2e1ed;
+}
+.category-icon.respond {
+  color: #986018;
+  background: #f8f0e3;
+  border-color: #ecdec4;
+}
+.control-card h3,
+.card-bottom strong,
+.mini-stat strong,
+.role-note b {
+  color: #24352d;
+}
+.control-card details {
+  color: #52645a;
+}
+.limitation {
+  color: #94523c;
+}
+.card-code,
+.top-meta,
+.brand small,
+.session-number > span,
+.session-number small,
+.muted,
+.fine-print,
+.help-text,
+.page-footer,
+.map-note,
+.map-footer,
+.field-label,
+.tower-option small,
+.battle-number small,
+.quiz-benefit span,
+.match-count small,
+.rule-block > span {
+  color: #5e7066;
+}
+.card-buy {
+  border-color: #bdd5c4;
+  background: #edf6ef;
+  color: #205e40;
+}
+.card-buy:hover:not(:disabled) {
+  background: #dfefe3;
+}
+.card-buy.remove,
+.primary {
+  background: #28734e;
+  color: #fff;
+}
+.card-buy.remove:hover:not(:disabled),
+.primary:hover:not(:disabled) {
+  background: #205e40;
+}
+.secondary,
+.mini-button {
+  border-color: #cbd8d0;
+  background: #f3f6f3;
+  color: #34483c;
+}
+.secondary:hover:not(:disabled),
+.mini-button:hover {
+  background: #e6ede8;
+}
+.check-category {
+  border-color: #d1ddd5;
+  color: #5e7066;
+}
+.check-category.satisfied {
+  border-color: #b8d4c0;
+  background: #edf6ef;
+  color: #205e40;
+}
+.loadout-row {
+  border-color: #e2e9e4;
+}
+.map-toolbar,
+.map-footer {
+  background: #fff;
+  color: #34483c;
+}
+.map-toolbar {
+  border-color: #d8e2dc;
+}
+.map-frame {
+  border-color: #d8e2dc;
+}
+.mini-button {
+  border-color: #cbd8d0;
+}
+.map-footer {
+  border-color: #d8e2dc;
+}
+.rule-block,
+.hand-chip {
+  background: #f3f6f3;
+  border-color: #d8e2dc;
+}
+.rule-block b {
+  color: #28734e;
+}
+.map-frame #overlay {
+  background: #f6f8f5f5;
+  backdrop-filter: blur(5px);
+}
+.reveal-card {
+  color: #52645a;
+  border-color: #d4dfd8;
+  background: #fff;
+}
+.reveal-card.matchable {
+  border-color: #8ab49a;
+  background: #e8f3eb;
+  color: #244c34;
+  box-shadow: inset 0 2px 0 #28734e;
+}
+.reveal-card.matchable.detect {
+  background: #eaf2f8;
+  border-color: #9cbad1;
+  box-shadow: inset 0 2px 0 #286b9b;
+}
+.reveal-card.matchable.respond {
+  background: #f8f1e7;
+  border-color: #d9bd90;
+  box-shadow: inset 0 2px 0 #986018;
+}
+.reveal-card.claimed {
+  background: #eff4f0 !important;
+  border-color: #ccd9d0 !important;
+  color: #62746a !important;
+}
+.placement-hint {
+  background: #fff;
+  border-color: #cbd8d0;
+  box-shadow: 0 5px 20px #203c2c20;
+  color: #34483c;
+}
+.tower-option {
+  background: #f6f8f6;
+  border-color: #d8e2dc;
+  color: #34483c;
+}
+.tower-option.active {
+  border-color: #8ab49a;
+  background: #e8f3eb;
+}
+.pad-entry select {
+  background: #fff;
+  border-color: #cbd8d0;
+  color: #24352d;
+}
+.success-note {
+  border-color: #b8d4c0;
+  background: #edf6ef;
+  color: #205e40;
+}
+.answer {
+  border-color: #d4dfd8;
+  background: #fff;
+  color: #34483c;
+}
+.answer > b {
+  border-color: #cbd8d0;
+  color: #52645a;
+}
+.answer:hover:not(:disabled) {
+  background: #f1f6f2;
+  border-color: #8ab49a;
+}
+.answer.correct,
+.answer-explanation.secure {
+  border-color: #8ab49a;
+  background: #e8f3eb;
+  color: #244c34;
+}
+.answer.incorrect {
+  border-color: #d7a99a;
+  background: #fbefeb;
+  color: #743f31;
+}
+.answer-explanation {
+  background: #f3f6f3;
+  border-color: #d4dfd8;
+  color: #34483c;
+}
+.result-emblem {
+  border-color: #b8d4c0;
+  background: #e8f3eb;
+  color: #28734e;
+  box-shadow: 0 8px 24px #203c2c0d;
+}
+.toast {
+  border-color: #d8bd8c;
+  background: #fff9ed;
+  box-shadow: 0 8px 24px #203c2c1a;
+  color: #6c4a18;
+}
+dialog {
+  background: #fff;
+  color: #24352d;
+  border-color: #d8e2dc;
+  box-shadow: 0 16px 50px #203c2c20;
+}
+dialog::backdrop {
+  background: #24352d66;
+}
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible,
+select:focus-visible {
+  outline-color: #28734e;
 }
