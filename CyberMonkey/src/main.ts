@@ -38,7 +38,19 @@ $('app').innerHTML=`
  <section id="game-view" hidden><div class="game-layout"><div class="map-column"><div class="map-toolbar"><span class="map-label"><span class="online-dot"></span> ${CONFIG.businessName.toUpperCase()} / SECTOR 07</span><div class="map-controls"><button id="pause" class="mini-button">Pause</button><button id="speed" class="mini-button" aria-label="Change battle speed">1× speed</button></div></div><div class="map-frame"><div id="game-container"></div><div id="overlay"></div><div id="placement-hint" class="placement-hint" hidden>Select a tower, then click a numbered pad.</div></div><div class="map-footer"><span><i class="legend-dot prevent"></i> Prevent · direct</span><span><i class="legend-dot detect"></i> Detect · slow + mark</span><span><i class="legend-dot respond"></i> Respond · area</span><span class="map-note">Combat illustrates resilience; it is not a real security simulation.</span></div><div class="metrics"><div><span>NETWORK INTEGRITY</span><strong id="live-health">100<span>%</span></strong></div><div><span>CONTROL SCORE</span><strong id="control-score">0</strong></div><div><span>BEHAVIOUR POINTS</span><strong id="behaviour-score">0</strong></div><div><span>COMBINED SCORE</span><strong id="total-score">0</strong></div></div><details class="score-detail"><summary>Why did my controls earn these points?</summary><div id="score-breakdown"></div></details></div><aside class="side-panel game-sidebar" id="game-sidebar" aria-label="Mission controls"></aside></div></section>
  <footer class="page-footer"><span>${CONFIG.gameName} <span class="muted">/ StrathHack MVP</span></span><span>Built for better cyber decisions.</span><span>Best survival: <b id="best-wave">${best}</b> waves</span></footer>
 </main><div class="toast" id="toast" role="status" hidden></div>
-<dialog id="restart-dialog"><p class="eyebrow">START AGAIN</p><h2>Build a different defence?</h2><p>This run will be cleared. Your best survival record stays saved on this browser.</p><div class="button-row"><button class="secondary" id="cancel-restart">Keep playing</button><button class="primary" id="confirm-restart">Start new run</button></div></dialog>`;
+<dialog id="restart-dialog"><p class="eyebrow">START AGAIN</p><h2>Build a different defence?</h2><p>This run will be cleared. Your best survival record stays saved on this browser.</p><div class="button-row"><button class="secondary" id="cancel-restart">Keep playing</button><button class="primary" id="confirm-restart">Start new run</button></div></dialog>
+<dialog id="tutorial-dialog" class="tutorial-dialog" aria-labelledby="tutorial-title" aria-describedby="tutorial-intro">
+  <div class="tutorial-header"><div><p class="eyebrow">QUICK START / NETWORK DEFENCE LAB</p><h2 id="tutorial-title">Protect the network. Make the right calls.</h2><p id="tutorial-intro">Build a balanced defence for Northstar Energy, then adapt it as the attack unfolds.</p></div><button class="dialog-close" id="close-tutorial" aria-label="Close tutorial">×</button></div>
+  <div class="tutorial-grid">
+    <section class="tutorial-step"><span class="tutorial-number">01</span><div><h3>Build your loadout</h3><p>Buy control cards with your £3m budget. Include at least one <b class="tutorial-category prevent">Prevent</b>, <b class="tutorial-category detect">Detect</b> and <b class="tutorial-category respond">Respond</b> card.</p></div></section>
+    <section class="tutorial-step"><span class="tutorial-number">02</span><div><h3>Match controls to threats</h3><p>Lock your loadout, review the three revealed cards in each of four attack phases, and collect your matching cards to earn towers.</p></div></section>
+    <section class="tutorial-step"><span class="tutorial-number">03</span><div><h3>Place your towers</h3><p>Select each earned tower and place it on a numbered pad near the route. All towers must be placed before you start a wave.</p></div></section>
+    <section class="tutorial-step"><span class="tutorial-number">04</span><div><h3>Defend the network</h3><p><b class="tutorial-category prevent">Prevent</b> deals direct damage, <b class="tutorial-category detect">Detect</b> slows and marks enemies, and <b class="tutorial-category respond">Respond</b> hits groups.</p></div></section>
+    <section class="tutorial-step"><span class="tutorial-number">05</span><div><h3>Answer behaviour questions</h3><p>After each rehearsal wave, answer one question before the timer runs out. Correct answers improve your behaviour score and integrity.</p></div></section>
+    <section class="tutorial-step"><span class="tutorial-number">06</span><div><h3>Survive the attack</h3><p>Use pause and speed controls when needed. Complete all four phases, then launch survival waves and keep network integrity above zero.</p></div></section>
+  </div>
+  <div class="tutorial-footer"><p class="fine-print">Your final score combines control decisions, behaviour points and survival waves cleared.</p><button class="primary" id="start-tutorial">Got it — start playing →</button></div>
+</dialog>`;
 
 function notify(message:string){$('toast').textContent=message;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,3500);}
 function attempt(action:()=>void){try{action();render();}catch(error){notify(error instanceof Error?error.message:'Something went wrong.');}}
@@ -145,8 +157,11 @@ $('app').addEventListener('click',event=>{
     case 'restart':$<HTMLDialogElement>('restart-dialog').showModal();break;
     case 'cancel-restart':$<HTMLDialogElement>('restart-dialog').close();break;
     case 'confirm-restart':$<HTMLDialogElement>('restart-dialog').close();restart();break;
+    case 'close-tutorial':case 'start-tutorial':$<HTMLDialogElement>('tutorial-dialog').close();break;
   }
 });
+const tutorialDialog=$<HTMLDialogElement>('tutorial-dialog');
+tutorialDialog.addEventListener('cancel',event=>event.preventDefault());
 setInterval(()=>{
   const now=performance.now(),dt=Math.min((now-lastClock)/1000,0.5);lastClock=now;
   if(run.stage!=='question'||questionPaused||document.hidden||run.answers.some(a=>a.id===qNow().id))return;
@@ -154,3 +169,4 @@ setInterval(()=>{
   if(questionSeconds<=0){run.answer(qNow(),null);render();}
 },100);
 render();
+tutorialDialog.showModal();
