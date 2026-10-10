@@ -290,21 +290,23 @@ p {
 }
 .catalog {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
 }
 .control-card {
   background: linear-gradient(140deg, #182a32, #13232b);
   border: 1px solid var(--line);
   border-radius: 9px;
-  padding: 17px;
+  padding: 7px 8px 6px;
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 112px;
   position: relative;
   transition:
     border-color 0.15s,
-    box-shadow 0.15s;
+    box-shadow 0.15s,
+    transform 0.15s;
 }
 .control-card:hover {
   border-color: #62746c;
@@ -316,17 +318,17 @@ p {
 .card-top {
   display: flex;
   align-items: center;
-  gap: 9px;
-  margin-bottom: 20px;
+  gap: 6px;
+  margin-bottom: 4px;
 }
 .category-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
-  height: 35px;
-  width: 35px;
-  border-radius: 8px;
+  font-size: 16px;
+  height: 22px;
+  width: 22px;
+  border-radius: 7px;
   background: #294b433d;
   border: 1px solid #4f7c6255;
   flex-shrink: 0;
@@ -353,50 +355,91 @@ p {
   letter-spacing: 0.5px;
   color: var(--muted);
 }
-.owned-check {
+.card-detail-toggle {
   margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1px solid rgba(110, 138, 145, 0.8);
+  background: rgba(13, 25, 30, 0.8);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1;
+  padding: 0;
+}
+.card-detail-toggle:hover {
+  border-color: #7ec7a1;
   color: var(--mint);
+}
+.owned-check {
+  min-width: 14px;
+  text-align: center;
+  color: var(--mint);
+  font-weight: 700;
 }
 .control-card h3 {
   color: #e7efed;
-  min-height: 40px;
-  letter-spacing: -0.2px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.25;
 }
-.control-card > p {
+.card-popout {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 0;
+  width: min(260px, 32vw);
+  background: rgba(11, 20, 24, 0.98);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 12px 12px 10px;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
+  z-index: 20;
+}
+.control-card.expanded .card-popout {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.card-popout p,
+.card-meta p {
+  margin: 0;
   font-size: 11px;
   color: var(--muted);
-  line-height: 1.6;
-  margin: 0 0 15px;
-  flex-grow: 1;
+  line-height: 1.5;
 }
-.control-card details {
-  font-size: 10px;
-  color: #aebfba;
-  margin-bottom: 14px;
+.card-meta {
+  margin-top: 10px;
 }
-.control-card details summary {
-  cursor: pointer;
-  display: list-item;
-  list-style-position: inside;
+.card-meta strong {
+  display: block;
+  margin-bottom: 4px;
+  font: 9px monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #d8f7e9;
 }
-.control-card details p {
-  margin: 9px 0;
-  font-size: 11px;
-}
-.limitation {
-  color: #e6b7a1;
+.card-meta.limitation p {
+  color: #f0cab6;
 }
 .card-bottom {
   border-top: 1px solid var(--line);
-  padding-top: 13px;
+  padding-top: 5px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 5px;
-  margin-top: auto;
+  margin-top: 6px;
 }
 .card-bottom strong {
-  font: 13px monospace;
+  font: 11px monospace;
   color: #e9f1eb;
 }
 .card-buy {
@@ -406,7 +449,7 @@ p {
   border-radius: 5px;
   font-size: 10px;
   font-weight: 600;
-  padding: 8px 11px;
+  padding: 5px 7px;
 }
 .card-buy:hover:not(:disabled) {
   background: #345747;
@@ -1214,7 +1257,7 @@ dialog > p:not(.eyebrow) {
     padding: 0 25px;
   }
   .catalog {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .shop-layout,
   .game-layout {
@@ -1290,13 +1333,18 @@ dialog > p:not(.eyebrow) {
     gap: 16px;
   }
   .catalog {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .mission-title {
     margin-bottom: 22px;
   }
   .map-note {
     width: auto;
+  }
+}
+@media (max-width: 650px) {
+  .catalog {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (max-width: 590px) {
@@ -1343,7 +1391,7 @@ dialog > p:not(.eyebrow) {
     gap: 9px;
   }
   .control-card {
-    padding: 12px;
+    padding: 7px 8px 6px;
   }
   .control-card h3 {
     font-size: 12px;
@@ -1353,19 +1401,20 @@ dialog > p:not(.eyebrow) {
   }
   .card-top {
     gap: 6px;
-    margin-bottom: 13px;
+    margin-bottom: 4px;
   }
   .card-top .category-icon {
-    width: 25px;
-    height: 25px;
-    font-size: 19px;
+    width: 22px;
+    height: 22px;
+    font-size: 16px;
   }
   .card-bottom {
-    flex-wrap: wrap;
-    gap: 10px;
+    flex-wrap: nowrap;
+    gap: 5px;
   }
   .card-buy {
-    padding: 7px 10px;
+    padding: 5px 6px;
+    font-size: 9px;
   }
   .filters {
     gap: 6px;

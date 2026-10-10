@@ -29,7 +29,7 @@ function fight(r: Run) {
 
 test("budget/category/duplicate validation preserves the supplied scoring engine", () => {
   assert.throws(
-    () => scoreSelection(data, ["P2", "D4", "D1", "R2"]),
+    () => scoreSelection(data, ["P2", "P9", "D6", "R2"]),
     /Over budget/,
   );
   assert.throws(() => scoreSelection(data, ["P1"]), /Missing/);
@@ -40,17 +40,32 @@ test("budget/category/duplicate validation preserves the supplied scoring engine
   const result = scoreSelection(data, ["P3", "D3", "R1"]);
   assert.deepEqual(
     result.phases.map((p) => p.score),
-    [2, 5, 4, 3],
+    [2, 3, 2, 2],
   );
-  assert.equal(result.total, 14);
+  assert.equal(result.total, 9);
+});
+test("the control-card deck has 22 unique controls and preserves listed totals", () => {
+  assert.equal(data.controls.length, 22);
+  assert.equal(new Set(data.controls.map((control) => control.id)).size, 22);
+  const totals = Object.fromEntries(
+    data.controls.map((control) => [
+      control.id,
+      data.phases.reduce((sum, phase) => sum + phase.scores[control.id], 0),
+    ]),
+  );
+  assert.deepEqual(totals, {
+    P1: 4, P2: 4, P3: 0, P4: 4, P5: 4, P6: 3, P7: 2, P8: 1, P9: 3,
+    D1: 6, D2: 3, D3: 0, D4: 0, D5: 2, D6: 11, D7: 2,
+    R1: 9, R2: 8, R3: 1, R4: 3, R5: 0, R6: 3,
+  });
 });
 test("shop blocks overspend, removal works, and locking freezes purchases", () => {
   const r = new Run(data);
   r.toggle("P2");
-  r.toggle("D4");
-  r.toggle("D1");
+  r.toggle("P9");
+  r.toggle("D6");
   assert.throws(() => r.toggle("R2"), /remaining budget/);
-  r.toggle("D1");
+  r.toggle("D6");
   assert.equal(r.spent, 2000000);
   r.toggle("R1");
   r.lock();
