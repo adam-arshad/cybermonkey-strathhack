@@ -39,8 +39,8 @@ $('app').innerHTML=`
  <footer class="page-footer"><span>${CONFIG.gameName} <span class="muted">/ StrathHack MVP</span></span><span>Built for better cyber decisions.</span><span>Best survival: <b id="best-wave">${best}</b> waves</span></footer>
 </main><div class="toast" id="toast" role="status" hidden></div>
 <dialog id="restart-dialog"><p class="eyebrow">START AGAIN</p><h2>Build a different defence?</h2><p>This run will be cleared. Your best survival record stays saved on this browser.</p><div class="button-row"><button class="secondary" id="cancel-restart">Keep playing</button><button class="primary" id="confirm-restart">Start new run</button></div></dialog>
-<dialog id="tutorial-dialog" class="tutorial-dialog" aria-labelledby="tutorial-title" aria-describedby="tutorial-intro">
-  <div class="tutorial-header"><div><p class="eyebrow">QUICK START / NETWORK DEFENCE LAB</p><h2 id="tutorial-title">Protect the network. Make the right calls.</h2><p id="tutorial-intro">Build a balanced defence for Northstar Energy, then adapt it as the attack unfolds.</p></div><button class="dialog-close" id="close-tutorial" aria-label="Close tutorial">×</button></div>
+<dialog id="tutorial-dialog" class="tutorial-dialog" aria-modal="true" aria-labelledby="tutorial-title" aria-describedby="tutorial-intro">
+  <div class="tutorial-header"><div><p class="eyebrow">QUICK START / NETWORK DEFENCE LAB</p><h2 id="tutorial-title">Protect the network. Make the right calls.</h2><p id="tutorial-intro">Build a balanced defence for Northstar Energy, then adapt it as the attack unfolds.</p></div><button type="button" class="dialog-close" id="close-tutorial" aria-label="Close tutorial">×</button></div>
   <div class="tutorial-grid">
     <section class="tutorial-step"><span class="tutorial-number">01</span><div><h3>Build your loadout</h3><p>Buy control cards with your £3m budget. Include at least one <b class="tutorial-category prevent">Prevent</b>, <b class="tutorial-category detect">Detect</b> and <b class="tutorial-category respond">Respond</b> card.</p></div></section>
     <section class="tutorial-step"><span class="tutorial-number">02</span><div><h3>Match controls to threats</h3><p>Lock your loadout, review the three revealed cards in each of four attack phases, and collect your matching cards to earn towers.</p></div></section>
@@ -49,7 +49,7 @@ $('app').innerHTML=`
     <section class="tutorial-step"><span class="tutorial-number">05</span><div><h3>Answer behaviour questions</h3><p>After each rehearsal wave, answer one question before the timer runs out. Correct answers improve your behaviour score and integrity.</p></div></section>
     <section class="tutorial-step"><span class="tutorial-number">06</span><div><h3>Survive the attack</h3><p>Use pause and speed controls when needed. Complete all four phases, then launch survival waves and keep network integrity above zero.</p></div></section>
   </div>
-  <div class="tutorial-footer"><p class="fine-print">Your final score combines control decisions, behaviour points and survival waves cleared.</p><button class="primary" id="start-tutorial">Got it — start playing →</button></div>
+  <div class="tutorial-footer"><p class="fine-print">Your final score combines control decisions, behaviour points and survival waves cleared.</p><button type="button" class="primary" id="start-tutorial">Got it — start playing →</button></div>
 </dialog>`;
 
 function notify(message:string){$('toast').textContent=message;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,3500);}
