@@ -200,6 +200,25 @@ test("survival increases enemy count and health, while practice waves stay gentl
   assert.ok(waveSpec(3, 0).hp < waveSpec(3, 1).hp);
 });
 
+test("every pad lets a level-one tower attack the rehearsal route", () => {
+  assert.ok(PADS.length >= 36, "Keep enough positions for all phase towers");
+  for (const category of ["Prevent", "Detect", "Respond"] as const)
+    for (let pad = 0; pad < PADS.length; pad++) {
+      const battle = new Battle(
+        [{ uid: "placement-check", controlId: "check", category, level: 1, pad }],
+        100,
+        0,
+        0,
+      );
+      let fired = false;
+      for (let tick = 0; tick < 5000 && !battle.done && !fired; tick++) {
+        battle.step(1 / 60);
+        fired = battle.shots.length > 0;
+      }
+      assert.ok(fired, `${category} tower cannot reach threats from pad ${pad + 1}`);
+    }
+});
+
 
 test("ranked solutions follow the slides and the agreed phase-four board", () => {
   assert.deepEqual([0, 1, 2, 3].map((phase) => offersFor(data, phase)), [

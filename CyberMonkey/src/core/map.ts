@@ -30,9 +30,16 @@ export function distanceToRoute(p: Point) {
   );
 }
 export const PADS: Point[] = [];
-for (let y = 65; y <= 575; y += 85)
-  for (let x = 65; x <= 935; x += 85) {
-    if (distanceToRoute({ x, y }) >= 53 && !(x > 850 && y > 335 && y < 545))
+// Keep every pad close enough for even a level-one Prevent/Respond tower to
+// cover a useful stretch of the route. The inner limit keeps pads off the path.
+for (let y = 65; y <= 575; y += 70)
+  for (let x = 65; x <= 935; x += 70) {
+    const routeDistance = distanceToRoute({ x, y });
+    if (
+      routeDistance >= 53 &&
+      routeDistance <= 100 &&
+      !(x > 850 && y > 335 && y < 545)
+    )
       PADS.push({ x, y });
   }
 const lengths = ROUTE.slice(1).map((p, i) => distance(p, ROUTE[i]));

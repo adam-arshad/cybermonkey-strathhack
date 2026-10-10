@@ -1,11 +1,12 @@
 import { Scene, GameObjects, Math as PhaserMath } from "phaser";
 import { Battle, towerRange } from "../../core/combat";
-import { ROUTE, PADS, MAP } from "../../core/map";
+import { ROUTE, ROUTE_LENGTH, PADS, MAP, distance, pointOnRoute } from "../../core/map";
 import { CONFIG, type Run } from "../../core/run";
 import type { Category } from "../../core/types";
 export interface Bridge {
   run: Run;
   selected: string | null;
+  previewPad: number | null;
   paused: boolean;
   speed: number;
   onPad: (pad: number) => void;
@@ -181,11 +182,6 @@ export class DefenseScene extends Scene {
       fontSize: "10px",
       color: "#ffad96",
     });
-    this.add.text(25, 587, "SECTOR 07  /  TRAINING NETWORK", {
-      fontFamily: "monospace",
-      fontSize: "10px",
-      color: "#91b6a5",
-    });
     for (const [x, y] of [
       [867, 65],
       [928, 110],
@@ -215,10 +211,12 @@ export class DefenseScene extends Scene {
     const run = this.bridge.run;
     PADS.forEach((_p, i) => {
       const occupied = run.towers.some((t) => t.pad === i);
-      this.padLayer.list[i * 2].setActive(!occupied);
-      (this.padLayer.list[i * 2] as GameObjects.Shape).setVisible(!occupied);
+      const available = !occupied && run.stage === "deploy";
+      const pad = this.padLayer.list[i * 2] as GameObjects.Shape;
+      pad.setActive(available).setVisible(available);
+      if (pad.input) pad.input.enabled = available;
       (this.padLayer.list[i * 2 + 1] as GameObjects.Text).setVisible(
-        !occupied && run.stage === "deploy",
+        available,
       );
     });
     for (const t of run.towers) {
@@ -289,16 +287,27 @@ export class DefenseScene extends Scene {
     }
     const g = this.dynamic;
     g.clear();
-    if (run.stage === "deploy" && this.hover >= 0) {
+    const previewPad = this.hover >= 0 ? this.hover : this.bridge.previewPad;
+    if (run.stage === "deploy" && previewPad !== null && previewPad >= 0) {
       const t = run.towers.find(
           (t) => t.uid === this.bridge.selected && t.pad === null,
         ),
-        p = PADS[this.hover];
-      if (t && !run.towers.some((t) => t.pad === this.hover)) {
+        p = PADS[previewPad];
+      if (t && p && !run.towers.some((tower) => tower.pad === previewPad)) {
+        const range = towerRange(t);
         g.fillStyle(colours[t.category], 0.1);
-        g.fillCircle(p.x, p.y, towerRange(t));
+        g.fillCircle(p.x, p.y, range);
         g.lineStyle(1, colours[t.category], 0.5);
-        g.strokeCircle(p.x, p.y, towerRange(t));
+        g.strokeCircle(p.x, p.y, range);
+        g.lineStyle(8, colours[t.category], 0.9);
+        for (let progress = 0; progress < ROUTE_LENGTH; progress += 10) {
+          const from = pointOnRoute(progress);
+          const to = pointOnRoute(Math.min(progress + 10, ROUTE_LENGTH));
+          if (distance(p, from) <= range && distance(p, to) <= range)
+            g.lineBetween(from.x, from.y, to.x, to.y);
+        }
+        g.lineStyle(3, colours[t.category], 1);
+        g.strokeCircle(p.x, p.y, 26);
       }
     }
     const b = this.battle;

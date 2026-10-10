@@ -65,6 +65,7 @@ try {
 const bridge: Bridge = {
   run,
   selected,
+  previewPad: null,
   paused: false,
   speed: 1,
   onPad: placeSelected,
@@ -84,7 +85,7 @@ $("app").innerHTML = `
  <div class="mission-title"><p class="eyebrow" id="eyebrow">LOADOUT</p><h1 id="heading" tabindex="-1">Choose your defences</h1><div class="scenario-summary" id="scenario-summary"><p class="scenario-label" id="scenario-label" hidden>Scenario</p><p id="subtitle">Buy controls for ${CONFIG.businessName} before the attack begins.</p></div></div>
  <nav class="timeline" aria-label="Game progress" id="timeline"></nav>
  <section id="shop-view" class="shop-layout"><div><div class="section-header"><div><p class="eyebrow">CONTROL LIBRARY</p><h2>Your first line of defence</h2></div><span class="muted">${data.controls.length} controls available</span></div><div class="filters" role="group" aria-label="Filter controls" id="filters"></div><div class="catalog" id="catalog"></div></div><aside id="shop-sidebar" class="side-panel" aria-label="Your loadout"></aside></section>
- <section id="game-view" hidden><div id="score-strip" class="score-strip" aria-label="Your score"></div><div id="matching-view" hidden></div><div class="game-layout" id="battle-layout"><div class="map-column"><div class="map-toolbar"><span class="map-label">${CONFIG.businessName}</span><div class="map-controls"><button id="pause" class="mini-button">Pause</button><button id="speed" class="mini-button" aria-label="Change battle speed">1× speed</button></div></div><div class="map-frame"><div id="game-container"></div><div id="overlay"></div><div id="placement-hint" class="placement-hint" hidden>Select a tower, then click a numbered pad.</div></div><div class="map-footer"><span><i class="legend-dot prevent"></i> Prevent · direct</span><span><i class="legend-dot detect"></i> Detect · slow + mark</span><span><i class="legend-dot respond"></i> Respond · area</span></div></div><aside class="side-panel game-sidebar" id="game-sidebar" aria-label="Mission controls"></aside></div></section>
+ <section id="game-view" hidden><div id="score-strip" class="score-strip" aria-label="Your score"></div><div id="matching-view" hidden></div><div class="game-layout" id="battle-layout"><div class="map-column"><div class="map-toolbar"><span class="map-label">${CONFIG.businessName}</span><div class="map-controls"><button id="pause" class="mini-button">Pause</button><button id="speed" class="mini-button" aria-label="Change battle speed">1× speed</button></div></div><div class="map-frame"><div id="game-container"></div><div id="overlay"></div><div id="placement-hint" class="placement-hint" hidden>Every pad reaches the route. Hover over a pad to see where your tower can fire.</div></div><div class="map-footer"><span><i class="legend-dot prevent"></i> Prevent · direct</span><span><i class="legend-dot detect"></i> Detect · slow + mark</span><span><i class="legend-dot respond"></i> Respond · area</span></div></div><aside class="side-panel game-sidebar" id="game-sidebar" aria-label="Mission controls"></aside></div></section>
  <footer class="page-footer"><span>${CONFIG.gameName}</span><span>Best survival: <b id="best-wave">${best}</b> waves</span></footer>
 </main><div class="toast" id="toast" role="status" hidden></div>
 <dialog id="story-dialog" class="story-dialog" aria-labelledby="story-title" aria-describedby="story-content"></dialog>
@@ -245,7 +246,8 @@ function renderSidebar() {
     const free = PADS.map((_, i) => i).filter(
       (i) => !run.towers.some((t) => t.pad === i),
     );
-    html += `<h2>Build your line.</h2><p class="muted small">Select a tower and a numbered pad. Towers persist through all four phases and survival.</p><div class="mini-stat"><span>Ready to place</span><strong>${run.pending.length}</strong></div><div class="tower-inventory">${run.pending.length ? run.pending.map((t) => `<button id="tower-${t.uid}" data-tower="${t.uid}" class="tower-option ${selected === t.uid ? "active" : ""}" aria-pressed="${selected === t.uid}">${mark(t.category)}<span><b>${esc(control(t.controlId).name)}</b><small>${t.controlId} · ${stars(t.level)} · ${t.category}</small></span></button>`).join("") : '<div class="success-note">✓ All earned towers are deployed.</div>'}</div>${run.pending.length ? `<label class="field-label" for="pad-select">Place using keyboard</label><div class="pad-entry"><select id="pad-select" aria-label="Choose an empty tower pad">${free.map((i) => `<option value="${i}">Pad ${String(i + 1).padStart(2, "0")}</option>`).join("")}</select><button class="secondary" id="place-pad">Place</button></div><button class="secondary full" id="auto-place">Auto-place remaining towers</button>` : ""}<button class="primary full" id="start-wave" ${run.pending.length ? "disabled" : ""}>Start rehearsal wave →</button><p class="help-text">Rehearsal ${run.phase + 1} · ${waveSpec(run.phase, 0).count} enemies · gentle difficulty</p><hr><p class="eyebrow">POSITION MATTERS</p><p class="small muted">Bends keep threats in range for longer. Place Detect towers near other towers: marked enemies take 30% more damage.</p>`;
+    if (!run.pending.length || !free.includes(bridge.previewPad ?? -1)) bridge.previewPad = null;
+    html += `<h2>Build your line.</h2><p class="muted small">Every numbered pad can reach the route. Select a tower, then hover over a pad or use the selector to preview its coverage.</p><div class="mini-stat"><span>Ready to place</span><strong>${run.pending.length}</strong></div><div class="tower-inventory">${run.pending.length ? run.pending.map((t) => `<button id="tower-${t.uid}" data-tower="${t.uid}" class="tower-option ${selected === t.uid ? "active" : ""}" aria-pressed="${selected === t.uid}">${mark(t.category)}<span><b>${esc(control(t.controlId).name)}</b><small>${t.controlId} · ${stars(t.level)} · ${t.category}</small></span></button>`).join("") : '<div class="success-note">✓ All earned towers are deployed.</div>'}</div>${run.pending.length ? `<label class="field-label" for="pad-select">Place using keyboard</label><div class="pad-entry"><select id="pad-select" aria-label="Choose an empty tower pad">${free.map((i) => `<option value="${i}" ${bridge.previewPad === i ? "selected" : ""}>Pad ${String(i + 1).padStart(2, "0")}</option>`).join("")}</select><button class="secondary" id="place-pad">Place</button></div><button class="secondary full" id="auto-place">Auto-place remaining towers</button>` : ""}<button class="primary full" id="start-wave" ${run.pending.length ? "disabled" : ""}>Start rehearsal wave →</button><p class="help-text">Rehearsal ${run.phase + 1} · ${waveSpec(run.phase, 0).count} enemies · gentle difficulty</p><hr><p class="eyebrow">POSITION MATTERS</p><p class="small muted">The highlighted path shows where this tower can fire. Bends keep threats in range longer. Detect towers mark threats for extra damage from nearby towers.</p>`;
   }
   if (run.stage === "battle")
     html += `<h2>${run.survivalWave ? "Hold the line." : "Defence in action."}</h2><p class="muted small">${run.survivalWave ? "Incoming waves grow in health, speed and numbers. Runners join at wave 2; armoured threats at wave 3." : "Watch how your towers work together. Completing this wave advances the attack scenario."}</p><div class="battle-number"><span id="kill-counter">0</span><small>THREATS STOPPED</small></div><div class="mini-stat"><span>Active threats</span><strong id="enemies-live">0</strong></div><div class="budget-track"><div id="wave-progress" style="width:0%"></div></div><p class="small muted" id="wave-spawned">Preparing wave…</p><hr><p class="eyebrow">COMBAT ROLES</p><div class="role-note">${mark("Prevent")}<span><b>Prevent</b>Fast, focused damage.</span></div><div class="role-note">${mark("Detect")}<span><b>Detect</b>Slows and marks threats.</span></div><div class="role-note">${mark("Respond")}<span><b>Respond</b>Hits nearby groups.</span></div><p class="fine-print">These effects are a game metaphor. See the control cards for the real capabilities and limitations.</p>`;
@@ -296,6 +298,7 @@ function render() {
   const focusId = (document.activeElement as HTMLElement)?.id;
   const deckScroll = previousStage === run.stage ? document.querySelector(".deck-cards")?.scrollTop ?? 0 : 0;
   const shop = run.stage === "shop";
+  if (run.stage !== "deploy") bridge.previewPad = null;
   const showLoadout = shop || viewingLoadout;
   $("shop-view").hidden = !showLoadout;
   $("game-view").hidden = showLoadout;
@@ -355,6 +358,7 @@ function render() {
 function placeSelected(pad: number) {
   if (selected && run.place(selected, pad)) {
     selected = run.pending[0]?.uid ?? null;
+    bridge.previewPad = null;
     render();
   } else if (run.stage === "deploy" && run.pending.length)
     notify("Choose an empty numbered pad for the selected tower.");
@@ -404,6 +408,7 @@ function restart() {
   viewingLoadout = false;
   $<HTMLDialogElement>("story-dialog").close();
   bridge.selected = null;
+  bridge.previewPad = null;
   questionKey = "";
   filter = "All";
   detailOpenId = null;
@@ -535,6 +540,13 @@ $("app").addEventListener("click", (event) => {
       break;
   }
 });
+function previewSelectedPad(event: Event) {
+  const target = event.target;
+  if (target instanceof HTMLSelectElement && target.id === "pad-select")
+    bridge.previewPad = Number(target.value);
+}
+$("app").addEventListener("focusin", previewSelectedPad);
+$("app").addEventListener("change", previewSelectedPad);
 // Native dragging on desktop; card-then-tile selection also supports touch and keyboard.
 $("matching-view").addEventListener("dragstart", (event) => {
   const card = (event.target as HTMLElement).closest<HTMLElement>("[data-deck]");
