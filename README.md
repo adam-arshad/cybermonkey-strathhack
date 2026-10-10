@@ -21,14 +21,14 @@ If port 8080 is in use, choose another: `PORT=3000 npm start` (macOS, Linux) or 
 
 The pack is arranged by level. Each level folder has its own short README listing its files. Every guide written in Markdown (files ending `.md`) has a Word version next to it with the same name, ending `.docx`. They say the same thing.
 
-| Folder or file | What it is |
-|---|---|
-| `BRIEF.html` | The challenge, the rules, the three levels and the judging |
-| `OUR_GAME.md` | The note you fill in and hand in with your game. `OUR_GAME.docx` is the same note in Word, if you prefer |
-| `1-foundation/` | The core game: demo page, scoring code and tests, scenario, questions, control icons and everyday pictures |
-| `2-extend/` | Themes: a guide and starting file for each, the rest of the artwork, 3D models and scenes, and the artwork viewer |
-| `3-stretch/` | A guide for each of the four capabilities |
-| `package.json` | Tells Node.js how to run `npm start` and `npm test` |
+| Folder or file  | What it is                                                                                                        |
+| --------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `BRIEF.html`    | The challenge, the rules, the three levels and the judging                                                        |
+| `OUR_GAME.md`   | The note you fill in and hand in with your game. `OUR_GAME.docx` is the same note in Word, if you prefer          |
+| `1-foundation/` | The core game: demo page, scoring code and tests, scenario, questions, control icons and everyday pictures        |
+| `2-extend/`     | Themes: a guide and starting file for each, the rest of the artwork, 3D models and scenes, and the artwork viewer |
+| `3-stretch/`    | A guide for each of the four capabilities                                                                         |
+| `package.json`  | Tells Node.js how to run `npm start` and `npm test`                                                               |
 
 The demo page is the quickest way to see how the pieces fit together. Its code, at the bottom of `1-foundation/demo.html`, is a worked example of loading each file.
 
@@ -37,10 +37,13 @@ We supply scoring for control purchases and nothing else. There is no finished g
 ## The scoring module
 
 ```js
-import {validateData, evaluatePurchases} from './1-foundation/starter/controls.mjs';
+import {
+  validateData,
+  evaluatePurchases,
+} from "./1-foundation/starter/controls.mjs";
 
-const data = await (await fetch('./1-foundation/data/challenge.json')).json();
-const result = evaluatePurchases(data, [['P3', 'D3', 'R1'], ['D4'], [], []]);
+const data = await (await fetch("./1-foundation/data/challenge.json")).json();
+const result = evaluatePurchases(data, [["P3", "D3", "R1"], ["D4"], [], []]);
 // result.rounds.map(r => r.score)  ->  [2, 8, 7, 6]
 // result.total                     ->  23
 ```
@@ -68,13 +71,13 @@ Things to know:
 
 `1-foundation/data/challenge.json` is the only file the scoring module needs.
 
-| Field | Meaning |
-|---|---|
-| `round_budget` | Pounds released at the start of each round (750000) |
-| `carryover` | `true` means unspent money moves to the next round |
-| `controls` | Each has `id`, `name`, `category` (Prevent, Detect or Respond) and `cost` in pounds. `description`, `use_case` and `limitation` are text for players |
-| `already_in_place` | Three controls the business already has. Show them. They cannot be bought and score nothing |
-| `phases` | Exactly four. Each has `id`, `title`, `local_time`, `story` and `scores`: the points for every control in that phase |
+| Field              | Meaning                                                                                                                                              |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `round_budget`     | Pounds released at the start of each round (750000)                                                                                                  |
+| `carryover`        | `true` means unspent money moves to the next round                                                                                                   |
+| `controls`         | Each has `id`, `name`, `category` (Prevent, Detect or Respond) and `cost` in pounds. `description`, `use_case` and `limitation` are text for players |
+| `already_in_place` | Three controls the business already has. Show them. They cannot be bought and score nothing                                                          |
+| `phases`           | Exactly four. Each has `id`, `title`, `local_time`, `story` and `scores`: the points for every control in that phase                                 |
 
 Every phase must give a score for every control. A missing or extra score is an error.
 
@@ -82,16 +85,16 @@ Every phase must give a score for every control. A missing or extra score is an 
 
 `1-foundation/data/questions.json` holds 40 questions. Each has:
 
-| Field | Meaning |
-|---|---|
-| `id` | Q01 to Q40 |
-| `category` | One of 10 topics |
-| `tier`, `tier_label` | Difficulty from 1 (Spot the Risk) to 4 (Pressure Test) |
-| `question`, `options`, `correct` | The scenario, four options A to D, and the letter of the one correct answer |
-| `explanation` | Show this after the answer. Keep it as written |
-| `secure_behaviour`, `difficulty_driver` | The behaviour being taught, and what makes the question hard |
-| `phase_id` | For 16 questions, the phase of the story it matches. `null` means a general question for any round |
-| `related_controls` | IDs of controls that deal with the same risk. P5 (Training and awareness) is on every question |
+| Field                                   | Meaning                                                                                            |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `id`                                    | Q01 to Q40                                                                                         |
+| `category`                              | One of 10 topics                                                                                   |
+| `tier`, `tier_label`                    | Difficulty from 1 (Spot the Risk) to 4 (Pressure Test)                                             |
+| `question`, `options`, `correct`        | The scenario, four options A to D, and the letter of the one correct answer                        |
+| `explanation`                           | Show this after the answer. Keep it as written                                                     |
+| `secure_behaviour`, `difficulty_driver` | The behaviour being taught, and what makes the question hard                                       |
+| `phase_id`                              | For 16 questions, the phase of the story it matches. `null` means a general question for any round |
+| `related_controls`                      | IDs of controls that deal with the same risk. P5 (Training and awareness) is on every question     |
 
 The demo page lists the story questions for each phase.
 
