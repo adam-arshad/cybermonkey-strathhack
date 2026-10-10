@@ -127,7 +127,7 @@ function renderShop(readOnly = false) {
       const owned = run.chosen.includes(c.id),
         over = !owned && c.cost > data.budget - run.spent,
         expanded = detailOpenId === c.id;
-      return `<article class="control-card ${categoryClass(c.category)} ${owned ? "selected" : ""} ${expanded ? "expanded" : ""}"><div class="card-top">${mark(c.category)}<span class="card-code">${c.id}</span><button class="card-detail-toggle" data-detail="${c.id}" aria-label="${expanded ? "Hide" : "Show"} details for ${esc(c.name)}" aria-expanded="${expanded}">？</button><span class="owned-check">${owned ? "✓" : ""}</span></div><h3>${esc(c.name)}</h3><div class="card-popout" role="dialog" aria-live="polite"><p>${esc(c.description)}</p><div class="card-meta"><strong>Where it helps</strong><p>${esc(c.use_case)}</p></div><div class="card-meta limitation"><strong>Limitation</strong><p>${esc(c.limitation)}</p></div></div><div class="card-bottom"><strong>${money(c.cost)}</strong><button id="buy-${c.id}" data-buy="${c.id}" class="card-buy ${owned ? "remove" : ""}" aria-label="${owned ? "Remove" : "Buy"} ${esc(c.name)}" ${readOnly || over ? "disabled" : ""}>${owned ? "Selected ✓" : over ? "Over budget" : "+ Add"}</button></div></article>`;
+      return `<article class="control-card ${categoryClass(c.category)} ${owned ? "selected" : ""} ${expanded ? "expanded" : ""}"><div class="card-top">${mark(c.category)}<span class="card-code">${c.id}</span><button class="card-detail-toggle" data-detail="${c.id}" aria-label="${expanded ? "Hide" : "Show"} details for ${esc(c.name)}" aria-expanded="${expanded}">&#128065;</button><span class="owned-check">${owned ? "✓" : ""}</span></div><h3>${esc(c.name)}</h3><div class="card-popout" role="dialog" aria-live="polite"><p>${esc(c.description)}</p><div class="card-meta"><strong>Where it helps</strong><p>${esc(c.use_case)}</p></div><div class="card-meta limitation"><strong>Limitation</strong><p>${esc(c.limitation)}</p></div></div><div class="card-bottom"><strong>${money(c.cost)}</strong><button id="buy-${c.id}" data-buy="${c.id}" class="card-buy ${owned ? "remove" : ""}" aria-label="${owned ? "Remove" : "Buy"} ${esc(c.name)}" ${readOnly || over ? "disabled" : ""}>${owned ? "Selected ✓" : over ? "Over budget" : "+ Add"}</button></div></article>`;
     })
     .join("");
   const missing = CATEGORIES.filter(
@@ -343,6 +343,7 @@ function restart() {
   bridge.selected = null;
   questionKey = "";
   filter = "All";
+  detailOpenId = null;
   renderer?.scene.resetBattle();
   render();
   window.scrollTo({ top: 0, behavior: "instant" });
