@@ -81,7 +81,11 @@ const bridge: Bridge = {
       lastLeakCount = 0;
       lastBattleHealth = run.health;
       renderer?.scene.beginBattle();
-      notify(run.cleared ? `Wave ${run.cleared} cleared. +100 points. Wave ${run.survivalWave} begins.` : "Survival begins. Wave 1 is starting.");
+      notify(
+        run.cleared
+          ? `Wave ${run.cleared} cleared. +100 points. Wave ${run.survivalWave} begins.`
+          : "Survival begins. Wave 1 is starting.",
+      );
     }
   },
 };
@@ -189,11 +193,7 @@ function renderTimeline() {
   ]
     .map((name, i) => {
       const current =
-        run.stage === "shop"
-          ? 0
-          : run.survivalWave > 0
-            ? 5
-            : run.phase + 1;
+        run.stage === "shop" ? 0 : run.survivalWave > 0 ? 5 : run.phase + 1;
       return `<div class="timeline-step ${i === current ? "current" : i < current ? "complete" : ""}" ${i === current ? 'aria-current="step"' : ""}><span>${i < current ? "✓" : String(i).padStart(2, "0")}</span><b>${name}</b></div>`;
     })
     .join("");
@@ -205,19 +205,33 @@ function matchesOverlay() {
     <p class="muted match-instructions">Drag a purchased card onto its named box, or select a card and then its box. Match every card you own to continue.</p>
     <div class="matching-layout">
       <aside class="match-deck" aria-label="Purchased cards"><div class="deck-heading"><h3>Your deck</h3><span>${run.deck.length} left</span></div><p class="small muted">Matched cards return next phase.</p>
-        <div class="deck-cards">${run.deck.map((id) => {
-          const c = control(id);
-          return `<button id="deck-${id}" class="deck-card ${categoryClass(c.category)} ${matchingCard === id ? "selected" : ""}" data-deck="${id}" draggable="true" aria-pressed="${matchingCard === id}" aria-label="Select ${id}, ${esc(c.name)}"><span class="deck-card-top">${mark(c.category)}<b>${id}</b><span>${c.category}</span></span><strong>${esc(c.name)}</strong><small>${matchingCard === id ? "Selected · choose a box" : "Drag or select to place"}</small></button>`;
-        }).join("") || '<p class="success-note">All cards placed. Your deck returns next phase.</p>'}</div>
+        <div class="deck-cards">${
+          run.deck
+            .map((id) => {
+              const c = control(id);
+              return `<button id="deck-${id}" class="deck-card ${categoryClass(c.category)} ${matchingCard === id ? "selected" : ""}" data-deck="${id}" draggable="true" aria-pressed="${matchingCard === id}" aria-label="Select ${id}, ${esc(c.name)}"><span class="deck-card-top">${mark(c.category)}<b>${id}</b><span>${c.category}</span></span><strong>${esc(c.name)}</strong><small>${matchingCard === id ? "Selected · choose a box" : "Drag or select to place"}</small></button>`;
+            })
+            .join("") ||
+          '<p class="success-note">All cards placed. Your deck returns next phase.</p>'
+        }</div>
       </aside>
       <div class="matching-board"><div class="rank-headings" aria-hidden="true"><span><b>3 points</b>Most effective</span><span><b>2 points</b>Second choice</span><span><b>1 point</b>Third choice</span></div>
-        ${CATEGORIES.map((category, row) => `<section class="match-row" aria-label="${category} solutions"><h3 class="${categoryClass(category)}">${symbols[category]} ${category}</h3><div class="match-tiles">${run.offers.slice(row * 3, row * 3 + 3).map((id) => {
-          const c = control(id), points = matchPoints(run.phase, id), owned = run.chosen.includes(id), claimed = run.claimed.includes(id);
-          return `<button id="match-${id}" data-target="${id}" class="match-tile ${categoryClass(category)} ${owned ? "available" : "unavailable"} ${claimed ? "matched" : ""}" aria-disabled="${claimed || !owned}"><span class="tile-top"><b>${id}</b><b>${points} ${points === 1 ? "PT" : "PTS"}</b></span><strong>${esc(c.name)}</strong><span class="tile-status">${claimed ? `✓ Matched · level ${points} tower` : owned ? "● Card available in your deck" : "Not purchased"}</span><span class="tile-action">${claimed ? `+${points} points earned` : owned ? "Drop matching card here" : "No card to place"}</span></button>`;
-        }).join("")}</div></section>`).join("")}
+        ${CATEGORIES.map(
+          (category, row) =>
+            `<section class="match-row" aria-label="${category} solutions"><h3 class="${categoryClass(category)}">${symbols[category]} ${category}</h3><div class="match-tiles">${run.offers
+              .slice(row * 3, row * 3 + 3)
+              .map((id) => {
+                const c = control(id),
+                  points = matchPoints(run.phase, id),
+                  owned = run.chosen.includes(id),
+                  claimed = run.claimed.includes(id);
+                return `<button id="match-${id}" data-target="${id}" class="match-tile ${categoryClass(category)} ${owned ? "available" : "unavailable"} ${claimed ? "matched" : ""}" aria-disabled="${claimed || !owned}"><span class="tile-top"><b>${id}</b><b>${points} ${points === 1 ? "PT" : "PTS"}</b></span><strong>${esc(c.name)}</strong><span class="tile-status">${claimed ? `✓ Matched · level ${points} tower` : owned ? "● Card available in your deck" : "Not purchased"}</span><span class="tile-action">${claimed ? `+${points} points earned` : owned ? "Drop matching card here" : "No card to place"}</span></button>`;
+              })
+              .join("")}</div></section>`,
+        ).join("")}
       </div>
     </div>
-    <div class="matching-footer"><div><p class="match-progress"><b>${run.claimed.length} / ${run.eligible.length}</b> matches placed <span>· ${run.phaseScore} points this phase</span></p><p id="match-feedback" role="status" aria-live="polite">${esc(matchFeedback || (complete ? run.eligible.length ? "All your matches are placed. Your towers are ready." : "You own no matching cards this phase. You can continue." : "Only matching cards earn points. Unmatched cards stay in your deck."))}</p></div><button class="primary" id="finish-matching" ${complete ? "" : "disabled"}>Answer questions →</button></div>
+    <div class="matching-footer"><div><p class="match-progress"><b>${run.claimed.length} / ${run.eligible.length}</b> matches placed <span>· ${run.phaseScore} points this phase</span></p><p id="match-feedback" role="status" aria-live="polite">${esc(matchFeedback || (complete ? (run.eligible.length ? "All your matches are placed. Your towers are ready." : "You own no matching cards this phase. You can continue.") : "Only matching cards earn points. Unmatched cards stay in your deck."))}</p></div><button class="primary" id="finish-matching" ${complete ? "" : "disabled"}>Answer questions →</button></div>
   </section>`;
 }
 function showStory() {
@@ -236,7 +250,8 @@ function submitMatch(id: string, targetId: string) {
     $(next ? `deck-${next}` : "finish-matching").focus({ preventScroll: true });
   } else {
     matchingCard = null;
-    matchFeedback = "That card does not match this box. It has returned to your deck. Match the card name and ID; no points were lost.";
+    matchFeedback =
+      "That card does not match this box. It has returned to your deck. Match the card name and ID; no points were lost.";
     render();
     $(`deck-${id}`)?.focus({ preventScroll: true });
   }
@@ -253,7 +268,8 @@ function renderSidebar() {
     const free = PADS.map((_, i) => i).filter(
       (i) => !run.towers.some((t) => t.pad === i && t.hp > 0),
     );
-    if (!run.pending.length || !free.includes(bridge.previewPad ?? -1)) bridge.previewPad = null;
+    if (!run.pending.length || !free.includes(bridge.previewPad ?? -1))
+      bridge.previewPad = null;
     html += `<h2>Build your line.</h2><p class="muted small">Every numbered pad can reach the route. Select a tower, then hover over a pad or use the selector to preview its coverage.</p><div class="mini-stat"><span>Ready to place</span><strong>${run.pending.length}</strong></div><div class="tower-inventory">${run.pending.length ? run.pending.map((t) => `<button id="tower-${t.uid}" data-tower="${t.uid}" class="tower-option ${selected === t.uid ? "active" : ""}" aria-pressed="${selected === t.uid}">${mark(t.category)}<span><b>${esc(control(t.controlId).name)}</b><small>${t.controlId} · ${stars(t.level)} · ${t.hp} HP · ${t.category}</small></span></button>`).join("") : '<div class="success-note">✓ All earned towers are deployed.</div>'}</div>${run.pending.length ? `<label class="field-label" for="pad-select">Place using keyboard</label><div class="pad-entry"><select id="pad-select" aria-label="Choose an empty tower pad">${free.map((i) => `<option value="${i}" ${bridge.previewPad === i ? "selected" : ""}>Pad ${String(i + 1).padStart(2, "0")}</option>`).join("")}</select><button class="secondary" id="place-pad">Place</button></div><button class="secondary full" id="auto-place">Auto-place remaining towers</button>` : ""}<button class="primary full" id="start-wave" ${run.pending.length ? "disabled" : ""}>Start rehearsal wave →</button><p class="help-text">Rehearsal ${run.phase + 1} · ${waveSpec(run.phase, 0).count} enemies · gentle difficulty</p><hr><p class="eyebrow">POSITION MATTERS</p><p class="small muted">The highlighted path shows where this tower can fire. Bends keep threats in range longer. Enemies can shoot back; tower HP carries into later waves.</p>`;
   }
   if (run.stage === "battle")
@@ -301,7 +317,10 @@ function resultsOverlay() {
 let previousStage = "";
 function render() {
   const focusId = (document.activeElement as HTMLElement)?.id;
-  const deckScroll = previousStage === run.stage ? document.querySelector(".deck-cards")?.scrollTop ?? 0 : 0;
+  const deckScroll =
+    previousStage === run.stage
+      ? (document.querySelector(".deck-cards")?.scrollTop ?? 0)
+      : 0;
   const shop = run.stage === "shop";
   if (run.stage !== "deploy") bridge.previewPad = null;
   const showLoadout = shop || viewingLoadout;
@@ -311,14 +330,16 @@ function render() {
   $("eyebrow").textContent = eyebrow;
   $("heading").textContent = heading;
   $("subtitle").textContent = subtitle;
-  const hasScenario = !shop && run.stage !== "gameover" && run.survivalWave === 0;
+  const hasScenario =
+    !shop && run.stage !== "gameover" && run.survivalWave === 0;
   $("scenario-label").hidden = !hasScenario;
   $("scenario-summary").classList.toggle("has-scenario", hasScenario);
   renderTimeline();
   const matching = run.stage === "match" || run.stage === "story";
   $("matching-view").hidden = !matching;
   $("battle-layout").hidden = matching;
-  $("score-strip").innerHTML = `<span>Card matches <b>${run.controlScore}</b></span><span>Quiz points <b>${run.behaviour}</b></span>${run.survivalWave ? `<span>Waves cleared <b>${run.cleared}</b></span>` : ""}`;
+  $("score-strip").innerHTML =
+    `<span>Card matches <b>${run.controlScore}</b></span><span>Quiz points <b>${run.behaviour}</b></span>${run.survivalWave ? `<span>Waves cleared <b>${run.cleared}</b></span>` : ""}`;
   bridge.run = run;
   if (showLoadout) renderShop(!shop);
   else if (matching) {
@@ -328,13 +349,11 @@ function render() {
     renderSidebar();
     $("overlay").innerHTML =
       run.stage === "question"
-          ? quizOverlay()
-          : run.stage === "gameover"
-            ? resultsOverlay()
-            : "";
-    $("overlay").hidden = !["question", "gameover"].includes(
-      run.stage,
-    );
+        ? quizOverlay()
+        : run.stage === "gameover"
+          ? resultsOverlay()
+          : "";
+    $("overlay").hidden = !["question", "gameover"].includes(run.stage);
     $("placement-hint").hidden = run.stage !== "deploy";
     $("pause").hidden = run.stage !== "battle";
     $("speed").hidden = run.stage !== "battle";
@@ -394,7 +413,9 @@ function updateBattle(b: Battle) {
   if ($("kill-counter")) {
     $("kill-counter").textContent = String(b.kills);
     $("enemies-live").textContent = String(b.enemies.length);
-    $("towers-live").textContent = String(run.towers.filter((t) => t.pad !== null && t.hp > 0).length);
+    $("towers-live").textContent = String(
+      run.towers.filter((t) => t.pad !== null && t.hp > 0).length,
+    );
     $("wave-progress").style.width =
       `${((b.kills + b.leaks) / b.spec.count) * 100}%`;
     $("wave-spawned").textContent =
@@ -442,13 +463,18 @@ $("app").addEventListener("click", (event) => {
   }
   if (b.dataset.deck) {
     matchingCard = matchingCard === b.dataset.deck ? null : b.dataset.deck;
-    matchFeedback = matchingCard ? `${control(matchingCard).name} selected. Choose its matching box.` : "Selection cleared.";
+    matchFeedback = matchingCard
+      ? `${control(matchingCard).name} selected. Choose its matching box.`
+      : "Selection cleared.";
     render();
     return;
   }
   if (b.dataset.target) {
     if (matchingCard) submitMatch(matchingCard, b.dataset.target);
-    else notify("Select a card from your deck first, then choose its matching box.");
+    else
+      notify(
+        "Select a card from your deck first, then choose its matching box.",
+      );
     return;
   }
   if (b.dataset.tower) {
@@ -526,7 +552,9 @@ $("app").addEventListener("click", (event) => {
       }
       break;
     case "finish-questions":
-      attempt(() => { run.finishQuestions(); });
+      attempt(() => {
+        run.finishQuestions();
+      });
       break;
     case "play-again":
     case "result-restart":
@@ -557,7 +585,9 @@ $("app").addEventListener("focusin", previewSelectedPad);
 $("app").addEventListener("change", previewSelectedPad);
 // Native dragging on desktop; card-then-tile selection also supports touch and keyboard.
 $("matching-view").addEventListener("dragstart", (event) => {
-  const card = (event.target as HTMLElement).closest<HTMLElement>("[data-deck]");
+  const card = (event.target as HTMLElement).closest<HTMLElement>(
+    "[data-deck]",
+  );
   if (!card || run.stage !== "match" || !event.dataTransfer) return;
   draggingCard = card.dataset.deck!;
   event.dataTransfer.setData("text/plain", draggingCard);
@@ -565,18 +595,25 @@ $("matching-view").addEventListener("dragstart", (event) => {
   card.classList.add("dragging");
 });
 $("matching-view").addEventListener("dragover", (event) => {
-  const tile = (event.target as HTMLElement).closest<HTMLElement>("[data-target]");
+  const tile = (event.target as HTMLElement).closest<HTMLElement>(
+    "[data-target]",
+  );
   if (!tile || !draggingCard) return;
   event.preventDefault();
   if (event.dataTransfer) event.dataTransfer.dropEffect = "move";
   tile.classList.add("drag-over");
 });
 $("matching-view").addEventListener("dragleave", (event) => {
-  const tile = (event.target as HTMLElement).closest<HTMLElement>("[data-target]");
-  if (tile && !tile.contains(event.relatedTarget as Node | null)) tile.classList.remove("drag-over");
+  const tile = (event.target as HTMLElement).closest<HTMLElement>(
+    "[data-target]",
+  );
+  if (tile && !tile.contains(event.relatedTarget as Node | null))
+    tile.classList.remove("drag-over");
 });
 $("matching-view").addEventListener("drop", (event) => {
-  const tile = (event.target as HTMLElement).closest<HTMLElement>("[data-target]");
+  const tile = (event.target as HTMLElement).closest<HTMLElement>(
+    "[data-target]",
+  );
   if (!tile || !draggingCard) return;
   event.preventDefault();
   const id = draggingCard;
@@ -588,11 +625,14 @@ $("matching-view").addEventListener("dragend", () => {
   draggingCard = null;
   if (returnedCard) {
     matchingCard = null;
-    matchFeedback = "Card returned to your deck. Drop it onto its named box; no points were lost.";
+    matchFeedback =
+      "Card returned to your deck. Drop it onto its named box; no points were lost.";
     render();
     $(`deck-${returnedCard}`)?.focus({ preventScroll: true });
   }
-  document.querySelectorAll(".dragging, .drag-over").forEach((el) => el.classList.remove("dragging", "drag-over"));
+  document
+    .querySelectorAll(".dragging, .drag-over")
+    .forEach((el) => el.classList.remove("dragging", "drag-over"));
 });
 $("matching-view").addEventListener("keydown", (event) => {
   if (event.key !== "Escape" || !matchingCard) return;

@@ -2,14 +2,9 @@ import { scoreSelection } from "./controls.mjs";
 import { PADS, distanceToRoute } from "./map.ts";
 import { MATCH_BOARDS, matchPoints } from "./matching.ts";
 import { selectPhaseQuestions } from "./questions.ts";
-import type {
-  Category,
-  Scenario,
-  Tower,
-  Question,
-} from "./types.ts";
+import type { Category, Scenario, Tower, Question } from "./types.ts";
 export const CONFIG = {
-  gameName: "CyberMonkey",
+  gameName: "",
   businessName: "Northstar Energy",
   behaviourPoints: 50,
   shieldBonus: 5,
@@ -30,9 +25,15 @@ export function offersFor(data: Scenario, phase: number): string[] {
   const board = MATCH_BOARDS[phase];
   if (!board) throw Error("Unknown matching phase.");
   const ids = board.flat();
-  if (ids.some((id, i) => !data.controls.some(
-    (c) => c.id === id && c.category === CATEGORIES[Math.floor(i / 3)],
-  ))) throw Error("The matching board does not match this control deck.");
+  if (
+    ids.some(
+      (id, i) =>
+        !data.controls.some(
+          (c) => c.id === id && c.category === CATEGORIES[Math.floor(i / 3)],
+        ),
+    )
+  )
+    throw Error("The matching board does not match this control deck.");
   return ids;
 }
 export class Run {
@@ -54,7 +55,11 @@ export class Run {
   readonly phaseQuestions: Question[][];
   constructor(data: Scenario, questions: Question[], random = Math.random) {
     this.data = data;
-    this.phaseQuestions = selectPhaseQuestions(questions, data.phases.map((phase) => phase.id), random);
+    this.phaseQuestions = selectPhaseQuestions(
+      questions,
+      data.phases.map((phase) => phase.id),
+      random,
+    );
   }
   get currentQuestion() {
     return this.phaseQuestions[this.phase][this.questionIndex];
@@ -63,12 +68,17 @@ export class Run {
     return this.phaseQuestions[this.phase];
   }
   get checkpointComplete() {
-    return this.checkpointQuestions.every((q) => this.answers.some((answer) => answer.id === q.id));
+    return this.checkpointQuestions.every((q) =>
+      this.answers.some((answer) => answer.id === q.id),
+    );
   }
   nextQuestion() {
-    if (this.stage !== "question" ||
+    if (
+      this.stage !== "question" ||
       !this.answers.some((answer) => answer.id === this.currentQuestion.id) ||
-      this.questionIndex >= this.checkpointQuestions.length - 1) return false;
+      this.questionIndex >= this.checkpointQuestions.length - 1
+    )
+      return false;
     this.questionIndex++;
     return true;
   }
@@ -84,10 +94,15 @@ export class Run {
     return this.cleared * 100;
   }
   get finalScore() {
-    return this.stage === "gameover" ? this.controlScore + this.behaviour + this.waveScore : null;
+    return this.stage === "gameover"
+      ? this.controlScore + this.behaviour + this.waveScore
+      : null;
   }
   get phaseScore() {
-    return this.claimed.reduce((sum, id) => sum + matchPoints(this.phase, id), 0);
+    return this.claimed.reduce(
+      (sum, id) => sum + matchPoints(this.phase, id),
+      0,
+    );
   }
   get deck() {
     return this.chosen.filter((id) => !this.claimed.includes(id));
