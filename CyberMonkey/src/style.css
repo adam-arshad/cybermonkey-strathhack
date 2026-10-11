@@ -1992,8 +1992,8 @@ select:focus-visible {
 .match-tile {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  min-height: 158px;
+  gap: 9px;
+  min-height: 205px;
   padding: 16px;
   border: 1px dashed #bacbc0;
   border-radius: 8px;
@@ -2028,7 +2028,12 @@ select:focus-visible {
 .match-tile > strong {
   font-size: 14px;
   line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.tile-description {
   flex: 1;
+  font-size: 12px;
+  line-height: 1.5;
   overflow-wrap: anywhere;
 }
 .tile-status {
@@ -2156,6 +2161,17 @@ body:has(#story-dialog[open]) {
   .match-progress span {
     display: block;
     margin-top: 5px;
+  }
+}
+@media (max-width: 590px) {
+  .rank-headings {
+    display: none;
+  }
+  .match-tiles {
+    grid-template-columns: 1fr;
+  }
+  .match-tile {
+    min-height: 0;
   }
 }
 
