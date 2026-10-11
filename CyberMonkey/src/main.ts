@@ -221,7 +221,7 @@ function matchesOverlay() {
                   points = matchPoints(run.phase, id),
                   owned = run.chosen.includes(id),
                   claimed = run.claimed.includes(id);
-                return `<button id="match-${id}" data-target="${id}" class="match-tile ${categoryClass(category)} ${owned ? "available" : "unavailable"} ${claimed ? "matched" : ""}" aria-disabled="${claimed || !owned}"><span class="tile-top"><b>${id}</b><b>${points} ${points === 1 ? "PT" : "PTS"}</b></span><strong>${esc(c.name)}</strong><span class="tile-status">${claimed ? `✓ Matched · level ${points} tower` : owned ? "● Card available in your deck" : "Not purchased"}</span><span class="tile-action">${claimed ? `+${points} points earned` : owned ? "Drop matching card here" : "No card to place"}</span></button>`;
+                return `<button id="match-${id}" data-target="${id}" class="match-tile ${categoryClass(category)} ${owned ? "available" : "unavailable"} ${claimed ? "matched" : ""}" aria-disabled="${claimed || !owned}"><span class="tile-top"><b>${id}</b><b>${points} ${points === 1 ? "PT" : "PTS"}</b></span><strong>${esc(c.name)}</strong><span class="tile-description">${esc(c.description)}</span><span class="tile-status">${claimed ? `✓ Matched · level ${points} tower` : owned ? "● Card available in your deck" : "Not purchased"}</span><span class="tile-action">${claimed ? `+${points} points earned` : owned ? "Drop matching card here" : "No card to place"}</span></button>`;
               })
               .join("")}</div></section>`,
         ).join("")}
