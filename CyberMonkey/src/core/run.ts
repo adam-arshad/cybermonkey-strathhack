@@ -5,7 +5,7 @@ import { selectPhaseQuestions } from "./questions.ts";
 import type { Category, Scenario, Tower, Question } from "./types.ts";
 export const CONFIG = {
   gameName: "",
-  businessName: "Northstar Energy",
+  businessName: "CyberMonkey",
   behaviourPoints: 50,
   shieldBonus: 5,
 };
