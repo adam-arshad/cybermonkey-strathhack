@@ -93,7 +93,7 @@ const bridge: Bridge = {
 $("app").innerHTML = `
 <header class="topbar"><a class="brand" href="./" aria-label="${CONFIG.gameName} home"><span class="monkey" aria-hidden="true">◉</span><span>${CONFIG.gameName.toUpperCase()}</span></a><button class="text-button" id="restart">New run</button></header>
 <main>
- <div class="mission-title"><p class="eyebrow" id="eyebrow">LOADOUT</p><h1 id="heading" tabindex="-1">Choose your defences</h1><div class="scenario-summary" id="scenario-summary"><p class="scenario-label" id="scenario-label" hidden>Scenario</p><p id="subtitle">Buy controls for ${CONFIG.businessName} before the attack begins.</p></div></div>
+ <div class="mission-title"><p class="eyebrow" id="eyebrow" hidden></p><h1 id="heading" tabindex="-1">Choose your defences</h1><div class="scenario-summary" id="scenario-summary" hidden><p class="scenario-label" id="scenario-label" hidden>Scenario</p><p id="subtitle"></p></div></div>
  <nav class="timeline" aria-label="Game progress" id="timeline"></nav>
  <section id="shop-view" class="shop-layout"><div><div class="section-header"><div><p class="eyebrow">CONTROL LIBRARY</p><h2>Your first line of defence</h2></div><span class="muted">${data.controls.length} controls available</span></div><div class="filters" role="group" aria-label="Filter controls" id="filters"></div><div class="catalog" id="catalog"></div></div><aside id="shop-sidebar" class="side-panel" aria-label="Your loadout"></aside></section>
  <section id="game-view" hidden><div id="score-strip" class="score-strip" aria-label="Your score"></div><div id="matching-view" hidden></div><div class="game-layout" id="battle-layout"><div class="map-column"><div class="map-toolbar"><span class="map-label">${CONFIG.businessName}</span><div class="map-controls"><button id="pause" class="mini-button">Pause</button><button id="speed" class="mini-button" aria-label="Change battle speed">1× speed</button></div></div><div class="map-frame"><div id="game-container"></div><div id="overlay"></div><div id="placement-hint" class="placement-hint" hidden>Every pad reaches the route. Hover over a pad to see where your tower can fire.</div></div><div class="map-footer"><span><i class="legend-dot prevent"></i> Prevent · direct</span><span><i class="legend-dot detect"></i> Detect · slow + mark</span><span><i class="legend-dot respond"></i> Respond · area</span></div></div><aside class="side-panel game-sidebar" id="game-sidebar" aria-label="Mission controls"></aside></div></section>
@@ -158,11 +158,7 @@ function renderShop(readOnly = false) {
 }
 function phaseHeading() {
   if (run.stage === "shop")
-    return [
-      "LOADOUT",
-      "Choose your defences",
-      `Buy controls for ${CONFIG.businessName} before the attack begins.`,
-    ];
+    return ["", "Choose your defences", ""];
   if (run.stage === "gameover")
     return [
       "RESULTS",
@@ -328,8 +324,10 @@ function render() {
   $("game-view").hidden = showLoadout;
   const [eyebrow, heading, subtitle] = phaseHeading();
   $("eyebrow").textContent = eyebrow;
+  $("eyebrow").hidden = shop;
   $("heading").textContent = heading;
   $("subtitle").textContent = subtitle;
+  $("scenario-summary").hidden = shop;
   const hasScenario =
     !shop && run.stage !== "gameover" && run.survivalWave === 0;
   $("scenario-label").hidden = !hasScenario;
